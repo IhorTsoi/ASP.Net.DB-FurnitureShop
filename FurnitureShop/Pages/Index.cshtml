@@ -1,0 +1,84 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="jumbotron">
+    <h1 class="display-4">Добро пожаловать, @Model.Buyer.Name!</h1>
+    <p class="lead">На этой странице покупатель может ознакомится с основными классами продукции сайта или воспользоваться "интелектуальным поиском".</p>
+    <hr class="my-4">
+    <p>А именно с разнообразными категориями, производителями и коллекцими мебели. Чтобы просмотреть выборку товаров во одному из выше перечисленных признаков, кликните по его названию.</p>
+    <a class="btn btn-primary btn-lg" asp-page="Index" role="button">Узнать больше!</a>
+</div>
+
+
+<hr />
+<h2>Поиск</h2>
+<hr />
+
+<div class="row" style="text-align: center; padding-left: 33%;">
+    <form method="get" asp-page="Furniture" autocomplete="off">
+        <p>Пожалуйста, введите поисковой запрос: </p>
+        <hr />
+        <div style="text-align: center;">
+                <input type="text" name="query"/>
+                <input type="submit" class="btn btn-default" value="Искать"/>
+        </div>
+    </form>
+</div>
+
+<hr />
+<h2>Категории товаров!</h2>
+<hr />
+
+<div class="row">
+    @foreach (var category in Model.Categories)
+    {
+        <div class="col-md-4 block">
+            <a asp-page="Furniture" asp-page-handler="Category" asp-route-categoryId="@category.ID">
+                <h2>@category.Name</h2>
+            </a>
+        </div>
+    }
+</div>
+
+<br />
+<br />
+<hr />
+<h2>Производители товаров!</h2>
+<hr />
+
+<div class="row">
+    @foreach (var manufacturer in Model.Manufacturers)
+    {
+        <div class="col-md-4">
+            <a asp-page="Furniture" asp-page-handler="Manufacturer" asp-route-manufacturerId="@manufacturer.ID">
+                <h2>@manufacturer.Name</h2>
+            </a>
+            <p>@manufacturer.Description.Substring(0, 70)  ...</p>
+        </div>
+    }
+</div>
+
+
+<br />
+<br />
+<hr />
+<h2>Коллекции товаров!</h2>
+<hr />
+
+<div class="row">
+    @foreach (var collection in Model.Collections)
+    {
+        <div class="col-md-4">
+            <a asp-page="Furniture"  asp-page-handler="Collection" asp-route-collectionId="@collection.ID">
+                <h2>@collection.Name</h2>
+            </a>
+            <p>@collection.Description.Substring(0, 70)  ...</p>
+        </div>
+    }
+</div>
+
+<br />
+<br />

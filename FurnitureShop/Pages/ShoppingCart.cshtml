@@ -1,0 +1,78 @@
+﻿@page
+@model FurnitureShop.Pages.ShoppingCartModel
+@{
+    ViewData["Title"] = "ShoppingCart";
+}
+
+<h1>Корзина</h1>
+
+<hr />
+
+
+<h3>Текущий заказ</h3>
+<hr />
+@if (Model.CurrentOrderHeader.OrderDetails.Count != 0)
+{
+    <div class="row">
+        @foreach (var od in Model.CurrentOrderHeader.OrderDetails)
+        {
+            <div class="col-md-4" style="padding: 12px;background-color: #d5e1ea;border-radius: 10px;border: solid white;">
+                <div class="card">
+                    <div class="card-body">
+                        <a asp-page="Details" asp-route-vendorCode="@od.Furniture.VendorCode">
+                            <h4 class="card-title">@od.Furniture.Name</h4>
+                        </a>
+                        <hr />
+                        <h5 class="card-subtitle mb-2">Количество: @od.Quantity</h5>
+                        <form method="post">
+                            <input type="hidden" name="vendorCode" value="@od.VendorCode" />
+                            <hr />
+                                <div class="btn-group" role="group" aria-label="Basic example">
+                                    <input type="submit" asp-page-handler="Remove" value="Убрать" class="btn btn-default" />
+                                </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <div style="margin: 20px;text-align: center;">
+        <form method="post">
+            <input type="submit" asp-page-handler="Confirm" value="Купить" class="btn btn-outline-primary" style="width: 300px;" />
+        </form>
+    </div>
+
+}
+else
+{
+    <div class="alert alert-info" role="alert">
+        <p>Корзина пуста</p>
+        <h5><a asp-page="/Index">На главную</a></h5>
+    </div>
+}
+
+
+
+
+<hr />
+
+
+
+<h3>История</h3>
+<hr />
+@foreach (var oh in Model.PreviousOrderHeaders)
+{
+    <ul class="list-group">
+        <li class="list-group-item active">Date: @oh.Date</li>
+        @foreach (var od in oh.OrderDetails)
+        {
+            <li class="list-group-item">
+                Мебель : @od.Furniture.Name
+                <br />
+                Количество: @od.Quantity
+                <br />
+                Цена: @od.Furniture.Price
+            </li>
+        }
+    </ul>
+}

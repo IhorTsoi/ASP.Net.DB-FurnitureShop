@@ -1,0 +1,69 @@
+﻿@page
+@model FurnitureShop.Pages.FurnitureModel
+@{
+    ViewData["Title"] = "Furniture";
+}
+
+<h1>Мебель</h1>
+<hr />
+<a class="btn btn-outline-primary" id="sort">
+    @(Model.Sorted ? "Отсортировано" : "Не отсортировано")
+</a>
+<hr />
+@if (Model.Furniture.Length != 0)
+{
+    @foreach (var furniture in Model.Furniture)
+    {
+        <div class="block">
+            <h3>@furniture.Name</h3>
+            <hr />
+            <p><b>Цена:</b> @furniture.Price</p>
+            <p><b>Производитель:</b> @furniture.Manufacturer.Name</p>
+            <p><b>Коллекция:</b> @furniture.Collection.Name</p>
+            <hr />
+            <p><b>Размеры:</b></p>
+            @foreach (var size in furniture.Sizes)
+            {
+                <p>@size.ToString()</p>
+            }
+            <hr />
+            <p><b>Цвета:</b></p>
+            @foreach (var color in furniture.Colors)
+            {
+                <p style="background-color: rgb(@color.RGB); padding:1em 2em;color:blue;"> @color.Name </p>
+            }
+            <hr />
+            <p><b>Материалы:</b></p>
+                @foreach (var material in furniture.Materials)
+                {
+                    <p>@material.Name</p>
+                }
+            <hr />
+            <a asp-page="Details" asp-route-vendorCode="@furniture.VendorCode">Посмотреть детальнее</a>
+            <div style="margin-top:25px; text-align:center;">
+                <a asp-page="Index">Назад</a>
+            </div>
+        </div>
+    }   
+}
+else
+{
+    <div style="margin-top : 25px; text-align: center;">
+        <p>К сожалению, ничего не нашлось...</p>
+        <a asp-page="Index">Назад</a>
+    </div>
+}
+
+@section Scripts
+{
+    <script>
+        const sort = document.getElementById('sort');
+        if (location.href.includes("sort")) {
+            let arr = location.href.split("&");
+            sort.href = arr.reduce((acc, c) => c.includes("sort") ? acc : acc.concat(c + "&"), "");
+        }
+        else {
+            sort.href = location.href + "&sort=True";
+        }
+    </script>
+}
