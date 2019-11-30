@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using FurnitureShop.Models;
+﻿using FurnitureShop.Models;
 using FurnitureShop.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -15,19 +11,30 @@ namespace FurnitureShop.Pages
 
         public void OnGet(string vendorCode)
         {
-            FurnitureRepository furnitureRepository = new FurnitureRepository(vendorCode, QueryMode.ByVendorCode);
+            FurnitureRepository furnitureRepository = new FurnitureRepository(QueryMode.ByVendorCode, vendorCode);
             furnitureRepository.Initialize();
             Furniture = furnitureRepository.FirstOrDefault();
-
-            // TODO:
-            // increment rate
+            if (Furniture != null)
+            {
+                furnitureRepository.IncrementRate(Furniture.VendorCode);
+            }
         }
+
 
         public IActionResult OnPost(string vendorCode)
         {
-            OrderRepository orderRepository = new OrderRepository(Program.UserId);
-            orderRepository.AddToCart(Program.UserId, vendorCode);
-            return Redirect("~/ShoppingCart");
+            if (User.Identity.IsAuthenticated)
+            {
+                BuyerRepository buyerRepository = new BuyerRepository();
+                int id = buyerRepository.GetIdByEmail(User.Identity.Name);
+                OrderRepository orderRepository = new OrderRepository(id);
+                orderRepository.AddToCart(vendorCode);
+                return Redirect("~/ShoppingCart");
+            }
+            else
+            {
+                return RedirectToPage("/Account/Login");
+            }
         }
     }
 }

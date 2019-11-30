@@ -372,7 +372,7 @@ GO
 /*
  1. return filtered orderHeaders by userId
 */
--- SELECT * FROM get_all_ohs(2)
+-- SELECT * FROM get_all_ohs(1)
 CREATE FUNCTION get_all_ohs (@userID INT)
 RETURNS TABLE
 AS
@@ -385,14 +385,13 @@ GO
 
 
 
-
 -- PENDING ORDER_HEADER WITH ORDER_DETAILS BY @user_id
 /*
  1. get_all_ohs (userId) 
  2. filter by max date
  3. inner join orderDetails
 */
--- SELECT * FROM get_pending_oh_od(2)
+-- SELECT * FROM get_pending_oh_od(1)
 CREATE FUNCTION get_pending_oh_od(@userId int)
 RETURNS TABLE 
 AS
@@ -406,6 +405,80 @@ GO
 
 
 
+-- GET BUYER ID BY @email
+/*
+ 1. just get the first buyer's id where email equals
+*/
+-- SELECT dbo.get_buyer_id_by_email('ihor.tsoi@nure.ua') => id or NULL
+CREATE FUNCTION dbo.get_buyer_id_by_email(@email NVARCHAR(50))
+RETURNS INT
+AS
+BEGIN
+RETURN (SELECT TOP 1 ID FROM Buyer WHERE Email = @email);
+END
+GO
+
+-- GET BUYER BY @email
+/*
+ 1. just get the first buyer where email equals
+*/
+-- SELECT * FROM dbo.get_buyer_by_email('ihor.tsoi@nure.ua') => may be empty
+CREATE FUNCTION dbo.get_buyer_by_email(@email NVARCHAR(50))
+RETURNS TABLE
+AS
+RETURN (SELECT TOP 1 * FROM Buyer WHERE Email = @email);
+GO
+
+
+-- BUYER EXISTS (@email)
+/*
+	1. email is unique attribute, check if already exists
+*/
+-- SELECT dbo.buyer_exists('ihsor.tsoi@nure.ua')
+CREATE FUNCTION dbo.buyer_exists(@email NVARCHAR(50))
+RETURNS BIT
+AS
+BEGIN
+	RETURN CONVERT(BIT, (SELECT COUNT(ID)
+		FROM Buyer
+		WHERE Email = @email))
+END
+GO
+
+
+-- VERIFY BUYER (@email, @pass)
+/*
+	1. check if user with @email and @pass exists
+*/
+-- SELECT dbo.verify_buyer('ihor.tsoi@nure.ua', 'pass')
+CREATE FUNCTION dbo.verify_buyer(@email NVARCHAR(50), @pass NVARCHAR(255))
+RETURNS BIT
+AS
+BEGIN
+	RETURN CONVERT(BIT, (SELECT COUNT(ID)
+		FROM Buyer
+		WHERE Email = @email AND
+			Password = @pass))
+END
+GO
+
+
+
+-- VERIFY SELLER (@email, @pass)
+/*
+	1. check if user with @email and @pass exists
+*/
+-- SELECT dbo.verify_seller('some.mail@gmail.com', 'nopass')
+CREATE FUNCTION dbo.verify_seller(@email NVARCHAR(50), @pass NVARCHAR(255))
+RETURNS BIT
+AS
+BEGIN
+	RETURN CONVERT(BIT, (SELECT COUNT(ID)
+		FROM Seller
+		WHERE Email = @email AND
+			Password = @pass))
+END
+GO
 
 
 -- EVALUATE DEGREE OF COINCIDENCE (@name, @category, @manufacturer, @collection, @query) [FOR SEARCH ALGO]
@@ -450,9 +523,6 @@ GO
 
 
 
-
-
-
 -- GET MATHCES BY @query [FOR SEARCH ALGO]
 /*
  1. use [SearchFurniture] view;
@@ -467,8 +537,6 @@ RETURN (
 	FROM [SearchFurniture] as sf
 )
 GO
-
-
 
 
 
@@ -491,6 +559,80 @@ RETURN (
 GO
 
 
+-- GET CART ITEMS FOR RECOMMENDATIONS BY @user_id [RECOMMENDATIONS ALGO]
+/*
+ 1. get the items in cart
+ 2. get the in format vendor, collectionid, categoryis, manufacturerid from furniture
+*/
+-- SELECT * FROM get_cart_items_characteristics(1)
+CREATE FUNCTION get_cart_items_characteristics(@user_id INT)
+RETURNS TABLE
+AS
+RETURN
+(	
+	SELECT VendorCode, CollectionID, CategoryID, ManufacturerID 
+	FROM Furniture
+	WHERE VendorCode IN (SELECT VendorCode FROM get_pending_oh_od(@user_id))
+)
+GO
+
+
+
+-- GET RECOMMENDATIONS WITH DEGREES BY @user_id [RECOMMENDATIONS ALGO]
+/*
+ 1. select vendor and rate from furniture, where vendor is not in the cart
+ 2. rate = collection_equals*3 + manufacturer_equals*2 + category_equals*1
+*/
+-- SELECT * FROM get_reccomendations_degrees(1)
+CREATE FUNCTION get_reccomendations_degrees(@user_id INT)
+RETURNS @res TABLE
+(
+	VendorCode NVARCHAR(16) PRIMARY KEY,
+	Degree INT
+)
+AS
+BEGIN
+	DECLARE @cart_items_characteristics TABLE 
+		(
+			VendorCode NVARCHAR(16),
+			CollectionID INT,
+			CategoryID INT,
+			ManufacturerID INT
+		);
+	INSERT INTO @cart_items_characteristics
+	SELECT * FROM get_cart_items_characteristics(@user_id);
+	--
+	INSERT INTO @res
+	SELECT VendorCode, (
+		(IIF(CollectionID IN (SELECT DISTINCT CollectionID FROM @cart_items_characteristics), 3,0)) +
+		(IIF(CategoryID IN (SELECT DISTINCT CategoryID FROM @cart_items_characteristics), 2,0)) +
+		(IIF(ManufacturerID IN (SELECT DISTINCT ManufacturerID FROM @cart_items_characteristics), 2,0))
+		) as Degree
+	FROM Furniture
+	WHERE VendorCode NOT IN (SELECT VendorCode FROM @cart_items_characteristics)
+	--
+	RETURN;
+END;
+GO
+
+
+-- GET RECOMMENDATIONS BY @user_id [RECOMMENDATIONS ALGO]
+/*
+ 1. get recommendations with degrees
+ 5. join with ordersAll by vendor
+*/
+-- SELECT * FROM get_recommendations(1) ORDER BY Degree DESC
+CREATE FUNCTION get_recommendations(@user_id INT)
+RETURNS TABLE
+AS
+RETURN
+(
+	SELECT FurnitureAll.*, rd.Degree
+	FROM FurnitureAll
+	INNER JOIN get_reccomendations_degrees(@user_id) as rd
+		ON FurnitureAll.VendorCode = rd.VendorCode
+)
+GO
 
 
 ------------------------------------------------------------------------------------------
@@ -580,6 +722,39 @@ GO
 
 
 
+
+-- DELETE FROM CART (@id, @vendor_code) : @success (0 --> ok, 1--> no such order_detail, vendor_code or user)
+/*
+ 1. validate input (check if exists)
+ 2. either delete or return 1
+*/
+/*
+ DECLARE @res INT
+ EXEC @res = delete_from_cart 1, '11111112'
+ PRINT @res
+*/
+CREATE PROCEDURE delete_from_cart
+	@id INT, @vendor_code NVARCHAR(16)
+AS
+	IF(EXISTS(SELECT 1 FROM get_pending_oh_od(@id) WHERE VendorCode LIKE @vendor_code))
+	BEGIN
+		DECLARE @oh_id INT;
+		SELECT TOP 1 @oh_id =  ID FROM get_all_ohs(@id) WHERE Date IS NULL
+		--
+		DELETE
+		FROM OrderDetail
+		WHERE (OrderHeaderID = @oh_id) AND
+				(VendorCode LIKE @vendor_code)
+		RETURN 0
+	END
+	ELSE
+	BEGIN
+		RETURN 1
+	END
+GO
+
+
+
 -- CONFIRM PURCHASE (@id) : result set, @return_code (0 --> ok, 1 --> no such user or empty OH, 2 --> not enough in the stock (see the result set))
 /*
 	1. check if user exists and order details exist
@@ -651,3 +826,20 @@ AS
 	ELSE
 		SET @return_code = 1
 		RETURN;
+GO
+
+
+-- INCREMENT RATE (@vendor) 
+/*
+	1. increment Rate in Furniture
+*/
+/*
+ EXEC inc_rate '11111112'
+*/
+CREATE PROCEDURE inc_rate
+	@vendor NVARCHAR(16)
+AS
+	UPDATE Furniture
+	SET Rate += 1
+	WHERE VendorCode LIKE @vendor;
+GO

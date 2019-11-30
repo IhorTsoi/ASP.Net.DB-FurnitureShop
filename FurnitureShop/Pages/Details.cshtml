@@ -14,19 +14,20 @@
     <i style="color:green">// ... также тут будет рисунок и больше информации о продавце</i><br />
     <i style="color:green">// ... пока не структурировано</i><br />
     <i style="color:green">// >>> image adress: @Model.Furniture.Image</i><br />
+    <i style="color:green">// >>> rate: @Model.Furniture.Rate</i><br />
     <br />
     <form method="post" asp-page="Details" style="text-align: center;">
         <input type="hidden" name="vendorCode" value="@Model.Furniture.VendorCode" />
         <input type="submit" class="btn btn-outline-primary" value="Добавить в корзину" />
     </form>
     <div style="margin-top : 25px; text-align: center;">
-        <a asp-page="Index">Назад</a>
+        <a asp-page="/Index" class="btn-link">На главную</a>
     </div>
 }
 else
 {
-    <div style="margin-top : 25px; text-align: center;">
-        <p>К сожалению, ничего не нашлось...</p>
-        <a asp-page="Index">Назад</a>
-    </div>
+<div style="margin-top : 25px; text-align: center;">
+    <p>К сожалению, товар отсутствует...</p>
+    <a asp-page="/Index" class="btn-link">На главную</a>
+</div>
 }

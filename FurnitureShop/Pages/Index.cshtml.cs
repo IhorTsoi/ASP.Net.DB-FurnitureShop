@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using FurnitureShop.Models;
 using FurnitureShop.Models.Users;
 using FurnitureShop.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
@@ -17,14 +18,10 @@ namespace FurnitureShop.Pages
         public Category[] Categories { get; set; }
         public Manufacturer[] Manufacturers { get; set; }
         public Collection[] Collections { get; set; }
+        public List<Furniture> Recommendations { get; set; }
 
         public IndexModel()
         {
-            int userId = Program.UserId;
-            BuyerRepository buyerRepository = new BuyerRepository(userId);
-            buyerRepository.Initialize();
-            Buyer = buyerRepository.FirstOrDefault();
-            //
             CategoryRepository categoryRepository = new CategoryRepository();
             categoryRepository.Initialize();
             Categories = categoryRepository.Items.ToArray();
@@ -39,6 +36,17 @@ namespace FurnitureShop.Pages
         }
 
         public void OnGet()
-        { }
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                BuyerRepository buyerRepository = new BuyerRepository(User.Identity.Name); // email actually
+                buyerRepository.Initialize();
+                Buyer = buyerRepository.FirstOrDefault();
+                //
+                FurnitureRepository furnitureRepository = new FurnitureRepository(QueryMode.Recommendations, Buyer.ID.ToString());
+                furnitureRepository.Initialize();
+                Recommendations = furnitureRepository.Items.Take(3).ToList();
+            }
+        }
     }
 }

@@ -1,0 +1,45 @@
+﻿@page
+@model FurnitureShop.Pages.Admin.Collection.IndexModel
+@{
+    ViewData["Title"] = "ADMIN";
+}
+
+<h1>Collections</h1>
+<hr />
+
+@{
+    if (Model.Message != null)
+    {
+        <p style="color:@(Model.IsWarningMessage ? "red" : "green");"> @Model.Message </p>
+        <hr />
+    }
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Name</th>
+            <th scope="col">Description</th>
+            <th>Delete</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Collections)
+        {
+            <tr>
+                <th scope="row">@item.ID</th>
+                <td>@item.Name</td>
+                <td>@item.Description</td>
+                <td>
+                    <form method="post" asp-page="Index" asp-page-handler="Delete">
+                        <input type="hidden" name="id" value="@item.ID" />
+                        <input type="submit" value="Del." class="btn btn-danger" />
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-page="Create" class="btn btn-outline-primary" style="width:100%;">Create</a>

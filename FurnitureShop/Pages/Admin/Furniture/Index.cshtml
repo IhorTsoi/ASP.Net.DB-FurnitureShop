@@ -1,0 +1,50 @@
+﻿@page
+@model FurnitureShop.Pages.Admin.Furniture.IndexModel
+@{
+    ViewData["Title"] = "ADMIN";
+}
+
+<h1>Furniture table</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Vendor</th>
+            <th scope="col">Name</th>
+            <th scope="col">Price</th>
+            <th scope="col">Sale</th>
+            <th scope="col">Quantity</th>
+            <th scope="col">Category</th>
+            <th scope="col">Manufacturer</th>
+            <th scope="col">Collection</th>
+            <th scope="col">Rate</th>
+            <th>Update</th>
+            <th>Delete</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Furniture)
+        {
+            <tr>
+                <th scope="row">@item.VendorCode</th>
+                <td>@item.Name</td>
+                <td>@item.Price</td>
+                <td>@item.IsOnSale</td>
+                <td>@item.Quantity</td>
+                <td>@item.Category.Name</td>
+                <td>@item.Manufacturer.Name</td>
+                <td>@item.Collection.Name</td>
+                <td>@item.Rate</td>
+                <td><a asp-page="Update" asp-route-vendor="@item.VendorCode" class="btn btn-info">upd.</a></td>
+                <td>
+                    <form method="post" asp-page="Index" asp-page-handler="Delete">
+                        <input type="hidden" name="vendor" value="@item.VendorCode" />
+                        <input type="submit" value="del." class="btn btn-primary" />
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-page="Create" class="btn btn-outline-primary" style="width:100%;">Create</a>

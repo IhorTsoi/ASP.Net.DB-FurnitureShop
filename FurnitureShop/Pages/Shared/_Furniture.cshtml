@@ -1,0 +1,37 @@
+﻿@model FurnitureShop.Models.Furniture
+
+<div class="col-md-4 furniture_node">
+    <div class="block">
+        <div>
+            <a asp-page="Details" asp-route-vendorCode="@Model.VendorCode">
+                <img src="img/@Model.Image" />
+            </a>
+        </div>
+
+        <a asp-page="Details" asp-route-vendorCode="@Model.VendorCode">
+            <h5>@Model.Name</h5>
+        </a>
+
+        <hr />
+        <p><b>Цена:</b> @Model.Price</p>
+
+        <p>
+            <b>Производитель:</b>
+            <a asp-page="Furniture" asp-page-handler="Manufacturer" asp-route-manufacturerId="@Model.Manufacturer.ID">
+                @Model.Manufacturer.Name
+            </a>
+        </p>
+
+        <div hidden class="furniture_info">
+            <input type="hidden" name="vendor" value="@Model.VendorCode" />
+            <input type="hidden" name="img" value="img/@Model.Image" />
+            <input type="hidden" name="name" value="@Model.Name" />
+            <input type="hidden" name="category" value="@Model.Category.Name" />
+            <input type="hidden" name="manufacturer" value="@Model.Manufacturer.Name" />
+            <input type="hidden" name="collection" value="@Model.Collection.Name" />
+            <input type="hidden" name="isOnSale" value="@Model.IsOnSale.ToString()" />
+            <input type="hidden" name="price" value="@Model.Price" />
+            <input type="hidden" name="rate" value="@Model.Rate" />
+        </div>
+    </div>
+</div>

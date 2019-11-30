@@ -1,0 +1,150 @@
+﻿@page
+@model FurnitureShop.Pages.Admin.Furniture.UpdateModel
+@{
+    ViewData["Title"] = "ADMIN";
+}
+
+<h1>Update furniture</h1>
+<hr />
+@{
+    if (Model.Message != null)
+    {
+        <p style="color:@(Model.IsWarningMessage ? "red" : "green");"> @Model.Message </p>
+        <hr />
+    }
+}
+<form method="post" asp-page="Update" asp-page-handler="Update" style="background-color: lightgrey; padding:30px;">
+    <h3>General:</h3>
+    Vendor: <input type="text" asp-for="Furniture.VendorCode" class="form-control" /><br />
+    Name: <input type="text" asp-for="Furniture.Name" class="form-control" /><br />
+    Price: <input type="text" asp-for="Furniture.Price" class="form-control" /><br />
+    Quantity: <input type="number" asp-for="Furniture.Quantity" class="form-control" /><br />
+    Category: <select asp-for="Furniture.CategoryID" style="width: 100%;">
+        @foreach (var item in Model.CategoryRepository.Items)
+        {
+            <option value="@item.ID">@item.Name</option>
+        }
+    </select><br />
+    Manufacturer: <select asp-for="Furniture.ManufacturerID" style="width: 100%;">
+        @foreach (var item in Model.ManufacturerRepository.Items)
+        {
+            <option value="@item.ID">@item.Name</option>
+        }
+    </select><br />
+    Collection: <select asp-for="Furniture.CollectionID" style="width: 100%;">
+        @foreach (var item in Model.CollectionRepository.Items)
+        {
+            <option value="@item.ID">@item.Name</option>
+        }
+    </select><br />
+    Image: <input type="text" asp-for="Furniture.Image" class="form-control" /><br />
+    <div style="text-align:center">
+        <a asp-page="Index" class="btn btn-secondary">Back</a>
+        <input type="submit" value="Save" class="btn btn-primary" style="width: 50%;" />
+    </div>
+</form>
+<hr />
+
+<h3>Enable/Disable sale:</h3>
+<form method="post" asp-page="Update" asp-page-handler="SetSale">
+    <input type="hidden" name="vendor" value="@Model.Furniture.VendorCode" />
+    @{
+        if (Model.Furniture.IsOnSale)
+        {
+            <p>Sale: </p> <input type="checkbox" name="enabled" value="false" checked /><br />
+            <p>Price: </p> <input type="number" name="price" value="@((int)Model.Furniture.Price)" />
+        }
+        else
+        {
+            <p>Sale: </p> <input type="checkbox" value="true" name="enabled" /><br />
+            <p>Price: </p> <input type="number" name="price" value="@((int)Model.Furniture.Price)" />
+        }
+    }
+
+    <div style="text-align:center">
+        <a asp-page="Index" class="btn btn-secondary">Back</a>
+        <input type="submit" value="Save" class="btn btn-primary" style="width: 50%;" />
+    </div>
+</form>
+<hr />
+
+<div style="background-color: lightgrey; padding:30px;">
+    <h3>Colors: </h3>
+    <hr />
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Name</th>
+                <th scope="col">Visual</th>
+                <th scope="col">Add / Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var color in Model.ColorRepository.Items)
+            {
+                <tr>
+                    <th scope="row">@color.ID</th>
+                    <td>@color.Name</td>
+                    <td><div style="width:50px;height:50px; background-color:rgb(@color.RGB);"></div></td>
+                    <td>
+                        <form method="post" asp-page="Update">
+                            <input type="hidden" name="vendor" value="@Model.Furniture.VendorCode" />
+                            <input type="hidden" name="colorId" value="@color.ID" />
+                            @if (Model.Furniture.Colors.Contains(color))
+                            {
+                                <input type="submit" asp-page-handler="DeleteColor" value="Del." class="btn btn-danger" />
+                            }
+                            else
+                            {
+                                <input type="submit" asp-page-handler="AddColor" value="Add." class="btn btn-primary" />
+                            }
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <a asp-page="./Colors" class="btn btn-info" style="width: 100%;">Add new colors!</a>
+    <hr />
+</div>
+<hr />
+
+<h3>Materials:</h3>
+<hr />
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Name</th>
+            <th scope="col">Image</th>
+            <th scope="col">Add / Delete</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var material in Model.MaterialRepository.Items)
+        {
+            <tr>
+                <th scope="row">@material.ID</th>
+                <td>@material.Name</td>
+                <td><div style="width:50px;height:50px; background-color:grey;"></div></td>
+                <td>
+                    <form method="post" asp-page="Update">
+                        <input type="hidden" name="vendor" value="@Model.Furniture.VendorCode" />
+                        <input type="hidden" name="materialId" value="@material.ID" />
+                        @if (Model.Furniture.Materials.Contains(material))
+                        {
+                            <input type="submit" asp-page-handler="DeleteMaterial" value="Del." class="btn btn-danger" />
+                        }
+                        else
+                        {
+                            <input type="submit" asp-page-handler="AddMaterial" value="Add." class="btn btn-primary" />
+                        }
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<a asp-page="./Materials" class="btn btn-info" style="width: 100%;">Add new materials!</a>
+<hr />

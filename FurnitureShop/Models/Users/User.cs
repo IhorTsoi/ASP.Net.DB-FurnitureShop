@@ -8,6 +8,11 @@ namespace FurnitureShop.Models.Users
 {
     public abstract class User
     {
+        protected User(string email)
+        {
+            Email = email;
+        }
+
         protected User(int iD, string email, string password)
         {
             ID = iD;

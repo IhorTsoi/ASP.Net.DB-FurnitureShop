@@ -41,7 +41,7 @@ namespace FurnitureShop.Repositories
         public void Create(Manufacturer manufacturer)
         {
             SqlCommand command = new SqlCommand(
-                cmdText: "INSERT INTO Manufacturer" +
+                cmdText: "INSERT INTO Manufacturer " +
                          "VALUES (@name, @desc, @contacts, @image);"
             );
             command.Parameters.Add(new SqlParameter("@name", manufacturer.Name));

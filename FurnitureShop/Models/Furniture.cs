@@ -9,6 +9,7 @@ namespace FurnitureShop.Models
 {
     public class Furniture : IEquatable<Furniture>
     {
+        public Furniture() { }
         public Furniture(string vendorCode, string name, decimal price, bool isOnSale, int quantity, Category category, Manufacturer manufacturer, Collection collection, int rate, string image)
         {
             VendorCode = vendorCode;
@@ -42,7 +43,7 @@ namespace FurnitureShop.Models
         private bool IsValid()
         {
             return VendorCode != null && VendorCode != "" &&
-                Price > 0 && Quantity > 0;
+                Price > 0 && Quantity >= 0;
         }
 
         public string VendorCode { get; set; }

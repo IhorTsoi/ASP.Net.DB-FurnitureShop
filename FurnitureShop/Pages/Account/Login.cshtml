@@ -1,0 +1,53 @@
+﻿@page
+@model FurnitureShop.Pages.Account.LoginModel
+@{
+    ViewData["Title"] = "Вход";
+}
+
+<h1>Вход</h1>
+<hr />
+<br />
+@{
+    if (Model.Message != null)
+    {
+        <p style="color:@(Model.IsWarningMessage ? "red" : "green");"> @Model.Message </p>
+        <hr />
+    }
+}
+
+
+
+
+
+
+<div class="container">
+    <div class="row">
+        <div class="col"></div>
+        <div class="col-6">
+            <form method="post">
+                <div class="form-group">
+                    <label asp-for="LoginForm.Email">Пожалуйста, введите адрес электронной почты:</label>
+                    <input asp-for="LoginForm.Email" class="form-control" autocomplete="off" />
+                    <span asp-validation-for="LoginForm.Email" class="text-danger" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="LoginForm.Password">Теперь введите пароль:</label>
+                    <input asp-for="LoginForm.Password" class="form-control" autocomplete="off" />
+                    <span asp-validation-for="LoginForm.Password" class="text-danger" />
+                </div>
+                <div class="text-center">
+                    <input type="submit" asp-page-handler="Login" value="Войти" class="btn btn-primary text-center" style="width: 90%;margin-top: 15px;"/>
+                </div>
+            </form>
+        </div>
+        <div class="col"></div>
+    </div>
+</div>
+
+
+
+
+@section Scripts{
+    <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+}

@@ -4,66 +4,273 @@
     ViewData["Title"] = "Furniture";
 }
 
-<h1>Мебель</h1>
+<h1>@ViewData["Subtitle"]</h1>
 <hr />
-<a class="btn btn-outline-primary" id="sort">
-    @(Model.Sorted ? "Отсортировано" : "Не отсортировано")
-</a>
+<div style="text-align:center">
+    <p style="display: inline;margin-right: 5px;"> Сортировать по: </p>
+    <div class="btn-group" role="group" id="sort">
+        <button type="button" class="btn btn-secondary" id="sortByPriceAsc">Цене ↑</button>
+        <button type="button" class="btn btn-secondary" id="sortByPriceDesc" hidden>Цене ↓</button>
+        <button type="button" class="btn btn-secondary" id="sortByRateAsc">Рейтингу ↑</button>
+        <button type="button" class="btn btn-secondary" id="sortByRateDesc" hidden>Рейтингу ↓</button>
+        <button type="button" class="btn btn-secondary" id="sortByNameAsc">Имени ↑</button>
+        <button type="button" class="btn btn-secondary" id="sortByNameDesc" hidden>Имени ↓</button>
+    </div>
+</div>
+<br />
+<div style="text-align:center">
+    <p style="display: inline;margin-right: 5px;"> Фильтровать по: </p>
+    <div class="btn-group">
+        <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Категориям
+        </button>
+        <div class="dropdown-menu" id="filterCategory"></div>
+    </div>
+
+
+    <div class="btn-group">
+        <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Производителям
+        </button>
+        <div class="dropdown-menu" id="filterManufacturer"></div>
+    </div>
+
+
+    <div class="btn-group">
+        <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Коллекциям
+        </button>
+        <div class="dropdown-menu" id="filterCollection"></div>
+    </div>
+
+
+    <div class="btn-group">
+        <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Наличию скидки
+        </button>
+        <div class="dropdown-menu" id="filterIsOnSale"></div>
+    </div>
+</div>
+
 <hr />
 @if (Model.Furniture.Length != 0)
 {
-    @foreach (var furniture in Model.Furniture)
-    {
-        <div class="block">
-            <h3>@furniture.Name</h3>
-            <hr />
-            <p><b>Цена:</b> @furniture.Price</p>
-            <p><b>Производитель:</b> @furniture.Manufacturer.Name</p>
-            <p><b>Коллекция:</b> @furniture.Collection.Name</p>
-            <hr />
-            <p><b>Размеры:</b></p>
-            @foreach (var size in furniture.Sizes)
-            {
-                <p>@size.ToString()</p>
-            }
-            <hr />
-            <p><b>Цвета:</b></p>
-            @foreach (var color in furniture.Colors)
-            {
-                <p style="background-color: rgb(@color.RGB); padding:1em 2em;color:blue;"> @color.Name </p>
-            }
-            <hr />
-            <p><b>Материалы:</b></p>
-                @foreach (var material in furniture.Materials)
-                {
-                    <p>@material.Name</p>
-                }
-            <hr />
-            <a asp-page="Details" asp-route-vendorCode="@furniture.VendorCode">Посмотреть детальнее</a>
-            <div style="margin-top:25px; text-align:center;">
-                <a asp-page="Index">Назад</a>
-            </div>
-        </div>
-    }   
+    <div class="row" id="root">
+        @foreach (var furniture in Model.Furniture)
+        {
+            <partial name="_Furniture" model="furniture" />
+        }
+    </div>
+    <div style="margin-top : 25px; text-align: center;">
+        <a asp-page="/Index" class="btn-link">На главную</a>
+    </div>
 }
 else
 {
     <div style="margin-top : 25px; text-align: center;">
         <p>К сожалению, ничего не нашлось...</p>
-        <a asp-page="Index">Назад</a>
+        <a asp-page="/Index" class="btn-link">На главную</a>
     </div>
 }
 
 @section Scripts
 {
     <script>
-        const sort = document.getElementById('sort');
-        if (location.href.includes("sort")) {
-            let arr = location.href.split("&");
-            sort.href = arr.reduce((acc, c) => c.includes("sort") ? acc : acc.concat(c + "&"), "");
+        class Furniture{
+            constructor(vendor, img, name, category, manufacturer, collection, isOnSale, price, rate, show) {
+                this.vendor = vendor,
+                this.img = img,
+                this.name = name;
+		        this.category = category;
+		        this.manufacturer = manufacturer;
+		        this.collection = collection;
+		        this.isOnSale = isOnSale;
+		        this.price = price;
+                this.rate = rate;
+                this.show = true;
+            }
         }
-        else {
-            sort.href = location.href + "&sort=True";
+
+        class FurnitureCollection {
+            constructor() {
+                this.root = document.getElementById('root');
+                this.nodesCollection = [...root.getElementsByClassName("furniture_node")];
+                this.furniture = this.nodesCollection.map(node => {
+                    const info = node.getElementsByClassName('furniture_info')[0];
+                    return new Furniture(
+                        info.children['vendor'].value,
+                        info.children['img'].value,
+                        info.children['name'].value,
+                        info.children['category'].value,
+                        info.children['manufacturer'].value,
+                        info.children['collection'].value,
+                        (info.children['isOnSale'].value === 'True'),
+                        Number(info.children['price'].value.replace(",", ".")),
+                        Number(info.children['rate'].value),
+                        true
+                    )
+                });
+                this.filters = {
+                    'category': this.exportCategory(),
+                    'manufacturer': this.exportManufacturer(),
+                    'collection': this.exportCollection(),
+                    'isOnSale': [true,false]
+                }
+            }
+
+            exportCategory() {
+                return this.furniture.reduce((acc, f) => (!acc.includes(f.category)) ? acc.concat(f.category) : acc, [])
+            }
+            exportManufacturer() {
+                return this.furniture.reduce((acc, f) => (!acc.includes(f.manufacturer)) ? acc.concat(f.manufacturer) : acc, [])
+            }
+            exportCollection() {
+                return this.furniture.reduce((acc, f) => (!acc.includes(f.collection)) ? acc.concat(f.collection) : acc, [])
+            }
+            exportIsOnSale() {
+                return ["Со скидкой", "Без скидки"];
+            }
+            //
+            filter() {
+                this.furniture.forEach(f => f.show = (this.filters.category.includes(f.category) && this.filters.manufacturer.includes(f.manufacturer)
+                    && this.filters.collection.includes(f.collection) && this.filters.isOnSale.includes(f.isOnSale)));
+                this.update();
+            }
+            //
+            sortByPriceAsc() {
+                this.furniture.sort((f1, f2) => f1.price - f2.price);
+                this.update();
+            }
+            sortByPriceDesc() {
+                this.furniture.sort((f1, f2) => f2.price - f1.price);
+                this.update();
+            }
+            sortByRateAsc() {
+                this.furniture.sort((f1, f2) => f1.rate - f2.rate);
+                this.update();
+            }
+            sortByRateDesc() {
+                this.furniture.sort((f1, f2) => f2.rate - f1.rate);
+                this.update();
+            }
+            sortByNameAsc() {
+                this.furniture.sort((a, b) => a.name.localeCompare(b.name));
+                this.update();
+            }
+            sortByNameDesc() {
+                this.furniture.sort((a, b) => b.name.localeCompare(a.name));
+                this.update();
+            }
+
+            update() {
+                for (let item of this.furniture) {
+                    const removed = col.root.removeChild(
+                        col.nodesCollection.find(
+                            node => node.getElementsByTagName('input')['vendor'].value === item.vendor)
+                    );
+                    removed.hidden = !item.show;
+                    col.root.appendChild(removed);
+                }
+            }
         }
+    </script>
+    <script>
+        const col = new FurnitureCollection;
+        [...document.getElementById('sort').children].forEach(n => n.addEventListener('click', () => {
+            col[n.id]();
+            n.hidden = true;
+            const tempId = n.id[n.id.length - 3] === "e" ? n.id.replace("Desc", "Asc") : n.id.replace("Asc", "Desc");
+            document.getElementById(tempId).hidden = false;
+        }))
+        //
+        const cat_filter = document.getElementById('filterCategory');
+        col.exportCategory().forEach(
+            c => {
+                const node = document.createElement('a');
+                node.className = 'dropdown-item';
+                node.textContent = "✓".concat(c);
+                node.onclick = function (e) {
+                    if (e.target.textContent[0] == "✓") {
+                        e.target.textContent = e.target.textContent.substr(1);
+                        col.filters.category.splice(col.filters.category.indexOf(e.target.textContent), 1);
+                    }
+                    else {
+                        col.filters.category.push(e.target.textContent);
+                        e.target.textContent = "✓".concat(e.target.textContent);
+                    }
+                    console.log(col.filters.category);
+                    col.filter();
+                }
+                cat_filter.appendChild(node);
+            }
+        );
+        //
+        const man_filter = document.getElementById('filterManufacturer');
+        col.exportManufacturer().forEach(
+            c => {
+                const node = document.createElement('a');
+                node.className = 'dropdown-item';
+                node.textContent = "✓".concat(c);
+                node.onclick = function (e) {
+                    if (e.target.textContent[0] == "✓") {
+                        e.target.textContent = e.target.textContent.substr(1);
+                        col.filters.manufacturer.splice(col.filters.manufacturer.indexOf(e.target.textContent), 1);
+                    }
+                    else {
+                        col.filters.manufacturer.push(e.target.textContent);
+                        e.target.textContent = "✓".concat(e.target.textContent);
+                    }
+                    console.log(col.filters.manufacturer);
+                    col.filter();
+                }
+                man_filter.appendChild(node);
+            }
+        );
+        //
+        const coll_filter = document.getElementById('filterCollection');
+        col.exportCollection().forEach(
+            c => {
+                const node = document.createElement('a');
+                node.className = 'dropdown-item';
+                node.textContent = "✓".concat(c);
+                node.onclick = function (e) {
+                    if (e.target.textContent[0] == "✓") {
+                        e.target.textContent = e.target.textContent.substr(1);
+                        col.filters.collection.splice(col.filters.collection.indexOf(e.target.textContent), 1);
+                    }
+                    else {
+                        col.filters.collection.push(e.target.textContent);
+                        e.target.textContent = "✓".concat(e.target.textContent);
+                    }
+                    console.log(col.filters.collection);
+                    col.filter();
+                }
+                coll_filter.appendChild(node);
+            }
+        );
+        //
+        const sale_filter = document.getElementById('filterIsOnSale');
+        col.exportIsOnSale().forEach(
+            c => {
+                const node = document.createElement('a');
+                node.className = 'dropdown-item';
+                node.textContent = "✓".concat(c);
+                node.onclick = function (e) {
+                    if (e.target.textContent[0] == "✓") {
+                        e.target.textContent = e.target.textContent.substr(1);
+                        const isTrue = e.target.textContent == "Со скидкой" ? true : false
+                        col.filters.isOnSale.splice(col.filters.isOnSale.indexOf(isTrue), 1);
+                    }
+                    else {
+                        const isTrue = e.target.textContent == "Со скидкой" ? true : false
+                        col.filters.isOnSale.push(isTrue);
+                        e.target.textContent = "✓".concat(e.target.textContent);
+                    }
+                    console.log(col.filters.isOnSale);
+                    col.filter();
+                }
+                sale_filter.appendChild(node);
+            }
+        );
     </script>
 }

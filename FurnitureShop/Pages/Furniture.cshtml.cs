@@ -12,67 +12,46 @@ namespace FurnitureShop.Pages
     public class FurnitureModel : PageModel
     {
         public Furniture[] Furniture { get; set; }
-        FurnitureRepository furnitureRepository { get; set; }
-        public bool Sorted { get; set; }
+        private FurnitureRepository furnitureRepository { get; set; }
 
-        public void OnGet(string query, bool sort = false)
+        public void OnGet(string query)
         {
-            furnitureRepository = new FurnitureRepository(query: query, QueryMode.BySearchQuery);
+            furnitureRepository = new FurnitureRepository(QueryMode.BySearchQuery, query: query);
             furnitureRepository.Initialize();
-            Sorted = sort;
-            if (Sorted)
-            {
-                Furniture = furnitureRepository.Items.OrderBy(f => f.Price).ToArray();
-            }
-            else
-            {
-                Furniture = furnitureRepository.Items.ToArray();
-            }
+            Furniture = furnitureRepository.Items.ToArray();
+            ViewData["Subtitle"] = "Мебель | Артикул " + query;
         }
 
-        public void OnGetCategory(int categoryId, bool sort = false)
+        public void OnGetAll()
         {
-            furnitureRepository = new FurnitureRepository(query: categoryId.ToString(), QueryMode.Custom, "CategoryId = @query;");
+            furnitureRepository = new FurnitureRepository();
             furnitureRepository.Initialize();
-            Sorted = sort;
-            if (Sorted)
-            {
-                Furniture = furnitureRepository.Items.OrderBy(f => f.Price).ToArray();
-            }
-            else
-            {
-                Furniture = furnitureRepository.Items.ToArray();
-            }
+            Furniture = furnitureRepository.Items.ToArray();
+            ViewData["Subtitle"] = "Мебель";
         }
 
-        public void OnGetCollection(int collectionId, bool sort = false)
+        public void OnGetCategory(int categoryId)
         {
-            furnitureRepository = new FurnitureRepository(query: collectionId.ToString(), QueryMode.Custom, "CollectionId = @query;");
+            furnitureRepository = new FurnitureRepository(QueryMode.Custom, query: categoryId.ToString(), args: "CategoryId = @query;");
             furnitureRepository.Initialize();
-            Sorted = sort;
-            if (Sorted)
-            {
-                Furniture = furnitureRepository.Items.OrderBy(f => f.Price).ToArray();
-            }
-            else
-            {
-                Furniture = furnitureRepository.Items.ToArray();
-            }
+            Furniture = furnitureRepository.Items.ToArray();
+            ViewData["Subtitle"] = "Мебель | Категория " + ((Furniture.Length == 0) ? "" : Furniture.First().Category.Name);
         }
 
-        public void OnGetManufacturer(int manufacturerId, bool sort = false)
+        public void OnGetCollection(int collectionId)
         {
-            furnitureRepository = new FurnitureRepository(query: manufacturerId.ToString(), QueryMode.Custom, "ManufacturerId = @query;");
+            furnitureRepository = new FurnitureRepository(QueryMode.Custom, query: collectionId.ToString(), args: "CollectionId = @query;");
             furnitureRepository.Initialize();
-            Sorted = sort;
-            if (Sorted)
-            {
-                Furniture = furnitureRepository.Items.OrderBy(f => f.Price).ToArray();
-            }
-            else
-            {
-                Furniture = furnitureRepository.Items.ToArray();
-            }
+            Furniture = furnitureRepository.Items.ToArray();
+            ViewData["Subtitle"] = "Мебель | Коллекция " + ((Furniture.Length == 0) ? "" : Furniture.First().Collection.Name);
+        }
+
+        public void OnGetManufacturer(int manufacturerId)
+        {
+            furnitureRepository = new FurnitureRepository(QueryMode.Custom, query: manufacturerId.ToString(), args: "ManufacturerId = @query;");
+            furnitureRepository.Initialize();
+            Furniture = furnitureRepository.Items.ToArray();
+            ViewData["Subtitle"] = "Мебель | Производитель " + ((Furniture.Length == 0) ? "" : Furniture.First().Manufacturer.Name);
         }
     }
 }

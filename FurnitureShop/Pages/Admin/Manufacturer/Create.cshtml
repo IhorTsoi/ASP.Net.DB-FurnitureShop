@@ -1,0 +1,24 @@
+﻿@page
+@model FurnitureShop.Pages.Admin.Manufacturer.CreateModel
+@{
+    ViewData["Title"] = "ADMIN";
+}
+
+<h1>Create manufacturer</h1>
+<hr />
+
+@{
+    if (Model.Message != null)
+    {
+        <p style="color:@(Model.IsWarningMessage ? "red" : "green");"> @Model.Message </p>
+        <hr />
+    }
+}
+
+<form method="post" asp-page="Create" asp-page-handler="Create">
+    Name: <input type="text" class="form-control" name="name" /><br />
+    Description: <input type="text" class="form-control" name="description" /><br />
+    Contacts: <input type="text" class="form-control" name="contacts" /><br />
+    Image: <input type="text" class="form-control" name="image" /><br />
+    <input type="submit" value="Create" class="btn btn-primary" />
+</form>

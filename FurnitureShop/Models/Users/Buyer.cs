@@ -11,6 +11,12 @@ namespace FurnitureShop.Models.Users
         public string Name { get; set; }
         public string Phone { get; set; }
      
+        public Buyer(string name, string phone, string email) : base(email)
+        {
+            Name = name;
+            Phone = phone;
+        }
+
         public Buyer(int iD, string name, string phone, string email, string password) : base(iD, email, password)
         {
             Name = name;

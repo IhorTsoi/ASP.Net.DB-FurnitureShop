@@ -11,6 +11,7 @@ namespace FurnitureShop.Repositories
 {
     public enum QueryMode
     {
+        Recommendations,
         ByVendorCode,
         BySearchQuery,
         Custom
@@ -25,13 +26,17 @@ namespace FurnitureShop.Repositories
             // default
             cmd = new SqlCommand("Select * from FurnitureAll;");
         }
-        public FurnitureRepository(string query, QueryMode mode, params string[] args)
+        public FurnitureRepository(QueryMode mode, string query, params string[] args)
         {
             switch (mode)
             {
                 case QueryMode.ByVendorCode:
                     cmd = new SqlCommand("Select * from FurnitureAll WHERE VendorCode LIKE @vendor;");
                     cmd.Parameters.Add(new SqlParameter("@vendor", query));
+                    break;
+                case QueryMode.Recommendations:
+                    cmd = new SqlCommand("SELECT TOP 30 * FROM get_recommendations(@userId) ORDER BY Degree DESC;");
+                    cmd.Parameters.Add(new SqlParameter("@userId", query));
                     break;
                 case QueryMode.BySearchQuery:
                     cmd = new SqlCommand(cmdText: "SELECT * FROM dbo.smart_search(@query) ORDER BY Degree DESC");
@@ -264,6 +269,16 @@ namespace FurnitureShop.Repositories
                 cmdText: "Update Furniture Set PriceDiscount=NULL Where VendorCode LIKE @vendor"
             );
             command.Parameters.Add(new SqlParameter("@vendor", vendorCode));
+            Execute(command);
+        }
+
+        public void IncrementRate(string vendorCode)
+        {
+            SqlCommand command = new SqlCommand(
+                cmdText: "inc_rate"
+            );
+            command.Parameters.Add(new SqlParameter("@vendor", vendorCode));
+            command.CommandType = System.Data.CommandType.StoredProcedure;
             Execute(command);
         }
 

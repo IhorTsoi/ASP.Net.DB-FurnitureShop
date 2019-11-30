@@ -17,17 +17,45 @@
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item" style="margin-left:50px">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">На домашнюю страницу</a>
+                <div class="navbar-collapse collapse">
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-page="/Furniture" asp-page-handler="All" style="color: #0083f5;animation: glow 1s ease-in-out infinite alternate;">Смотреть всё!</a>
                         </li>
-                        <li class="nav-item" style="margin-left:50px">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Политика конфиденциальности</a>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-page="/Index" asp-fragment="manufacturers">Производители</a>
                         </li>
-                        <li class="nav-item" style="margin-left:50px">
-                            <a class="nav-link text-right" asp-area="" asp-page="ShoppingCart" style="margin-left: 390%;">Корзина</a>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-page="/Index" asp-fragment="collections">Коллекции</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-page="/Index" asp-fragment="categories">Категории</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-page="/Index" asp-fragment="search">Поиск</a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav">
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-page="ShoppingCart">Корзина</a>
+                            </li>
+                            <li class="nav-item">
+                                <form method="post">
+                                    <input type="submit" asp-page="Account/Login" asp-page-handler="Logout" value="Выйти" class="nav-link text-info" style="border: none; background: none;" />
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-info" asp-page="/Account/Login">Войти</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-info" asp-page="/Account/Register">Зарегистрироваться</a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>
@@ -40,8 +68,8 @@
     </div>
 
     <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2019 - FurnitureShop - <a asp-area="" asp-page="/Privacy">Privacy</a>
+        <div class="container" style="text-align: center;">
+            &copy; 2019 - FurnitureShop
         </div>
     </footer>
 

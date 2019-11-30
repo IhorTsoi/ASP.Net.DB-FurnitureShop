@@ -7,7 +7,13 @@
 <h1>Корзина</h1>
 
 <hr />
-
+@{
+    if (Model.Message != null)
+    {
+        <p style="color:@(Model.IsWarningMessage ? "red" : "green");"> @Model.Message </p>
+        <hr />
+    }
+}
 
 <h3>Текущий заказ</h3>
 <hr />
@@ -27,9 +33,9 @@
                         <form method="post">
                             <input type="hidden" name="vendorCode" value="@od.VendorCode" />
                             <hr />
-                                <div class="btn-group" role="group" aria-label="Basic example">
-                                    <input type="submit" asp-page-handler="Remove" value="Убрать" class="btn btn-default" />
-                                </div>
+                            <div class="btn-group" role="group" aria-label="Basic example">
+                                <input type="submit" asp-page-handler="Remove" value="Убрать" class="btn btn-default" />
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -60,19 +66,27 @@ else
 
 <h3>История</h3>
 <hr />
-@foreach (var oh in Model.PreviousOrderHeaders)
-{
-    <ul class="list-group">
-        <li class="list-group-item active">Date: @oh.Date</li>
-        @foreach (var od in oh.OrderDetails)
+@{
+    if (Model.PreviousOrderHeaders.Any())
+    {
+        foreach (var oh in Model.PreviousOrderHeaders)
         {
-            <li class="list-group-item">
-                Мебель : @od.Furniture.Name
-                <br />
-                Количество: @od.Quantity
-                <br />
-                Цена: @od.Furniture.Price
-            </li>
+            <ul class="list-group">
+                <li class="list-group-item active">Date: @oh.Date</li>
+                @foreach (var od in oh.OrderDetails)
+                {
+                    <li class="list-group-item">
+                        Мебель : @od.Furniture.Name
+                        <br />
+                        Количество: @od.Quantity
+                        <br />
+                        Цена: @od.Furniture.Price
+                    </li>
+                }
+            </ul>
         }
-    </ul>
+    }
+    else { 
+        <p>История пуста, самое время отправляться на шоппинг!</p>
+    }
 }

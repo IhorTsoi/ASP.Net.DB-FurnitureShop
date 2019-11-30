@@ -11,11 +11,18 @@ namespace FurnitureShop.Repositories
 {
     public class OrderRepository : Repository<OrderHeader>
     {
+        private readonly int userId;
         private readonly SqlCommand cmd;
+
+        public OrderRepository()
+        {
+            cmd = new SqlCommand("Select * from OrdersAll");
+        }
 
         public OrderRepository(int userId)
         {
-            cmd = new SqlCommand("Select * from OrdersAll Where BuyerId = @id;");
+            this.userId = userId;
+            cmd = new SqlCommand(cmdText: "Select * from OrdersAll Where BuyerId = @id;");
             cmd.Parameters.Add(new SqlParameter("@id", userId));
         }
 
@@ -35,9 +42,11 @@ namespace FurnitureShop.Repositories
                         if (prev == null || !(prev.BuyerID == reader.GetInt32(0) && prev.ID == reader.GetInt32(2)))
                         {
                             int buyerID = reader.GetInt32(0);
+                            string buyerName = reader.GetString(1);
                             int orderHeaderId = reader.GetInt32(2);
                             DateTime? date = reader.IsDBNull(3) ? null : (DateTime?)reader.GetDateTime(3);
                             prev = new OrderHeader(orderHeaderId, date, buyerID);
+                            prev.Buyer = new Models.Users.Buyer(buyerName, null, null);
                             Items.Add(prev);
                         }
 
@@ -57,28 +66,33 @@ namespace FurnitureShop.Repositories
             }
         }
 
-        public void DeleteFromCart(int id, string vendor)
+        public void DeleteFromCart(string vendor)
         {
             using (SqlConnection conn = new SqlConnection(Program.ConnectionString))
             {
                 conn.Open();
                 SqlCommand command = new SqlCommand(
-                    cmdText: "Select top 1 ID from get_pending_oh_od(@id);",
+                    cmdText: "delete_from_cart",
                     connection: conn
                 );
-                command.Parameters.Add(new SqlParameter("@id", id.ToString()));
-                int oh_id = (int)command.ExecuteScalar();
-
-                SqlCommand command1 = new SqlCommand(
-                    cmdText: "Delete From OrderDetail Where OrderHeaderID=@oh_id AND VendorCode LIKE @vendor",
-                    connection: conn);
-                command1.Parameters.Add(new SqlParameter("@oh_id", oh_id));
-                command1.Parameters.Add(new SqlParameter("@vendor", vendor));
-                command1.ExecuteNonQuery();
+                command.CommandType = System.Data.CommandType.StoredProcedure;
+                //
+                command.Parameters.Add(new SqlParameter("@id", userId));
+                command.Parameters.Add(new SqlParameter("@vendor_code", vendor));
+                //
+                SqlParameter ret = new SqlParameter();
+                ret.Direction = System.Data.ParameterDirection.ReturnValue;
+                command.Parameters.Add(ret);
+                //
+                command.ExecuteNonQuery();
+                if ((int)ret.Value == 1)
+                {
+                    throw new Exception("Can't delete from cart: no such order detail, furniture or user.");
+                } // 0 => ok
             }
         }
 
-        public void AddToCart(int id, string vendor)
+        public void AddToCart(string vendor)
         {
             using (SqlConnection conn = new SqlConnection(Program.ConnectionString))
             {
@@ -89,8 +103,7 @@ namespace FurnitureShop.Repositories
                 );
                 command.CommandType = System.Data.CommandType.StoredProcedure;
                 //
-                command.Parameters.Add(new SqlParameter("@id", id));
-                //
+                command.Parameters.Add(new SqlParameter("@id", userId));
                 command.Parameters.Add(new SqlParameter("@vendor_code", vendor));
                 //
                 SqlParameter ret = new SqlParameter();
@@ -105,11 +118,10 @@ namespace FurnitureShop.Repositories
             }
         }
 
-        public bool ConfirmPurchase(int id, List<string> error_vendors)
+        public bool ConfirmPurchase(out List<string> error_vendors)
         {
             // USAGE:
-            // List<string> errors = new List<string>();
-            // bool res = cr.ConfirmPurchase(Program.UserId, errors);
+            // bool res = cr.ConfirmPurchase(Program.UserId, out List<string> errors);
             // if !res: see errors
             using (SqlConnection conn = new SqlConnection(Program.ConnectionString))
             {
@@ -119,7 +131,7 @@ namespace FurnitureShop.Repositories
                     connection: conn);
                 command.CommandType = System.Data.CommandType.StoredProcedure;
                 //
-                command.Parameters.Add(new SqlParameter("@id", id));
+                command.Parameters.Add(new SqlParameter("@id", userId));
                 //
                 SqlParameter ret = new SqlParameter(
                     parameterName: "@return_code",
@@ -128,8 +140,10 @@ namespace FurnitureShop.Repositories
                 command.Parameters.Add(ret);
                 //
                 SqlDataReader reader = command.ExecuteReader();
+                error_vendors = null;
                 if (reader.HasRows)
                 {
+                    error_vendors = new List<string>();
                     while (reader.Read())
                     {
                         string vendorCode = reader.GetString(0);
@@ -140,16 +154,18 @@ namespace FurnitureShop.Repositories
                 //
                 switch ((int)ret.Value)
                 {
-                    case 1:
+                    case 0: // => ok
+                        return true;
+                    case 1: // => no such user or empty OH
                         throw new Exception("Can't confirm purchase. No such user or empty order.");
-                    case 2:
-                        if (error_vendors.Count == 0)
+                    case 2: // => not enough in the stock
+                        if (error_vendors == null)
                         {
                             throw new Exception("Confirm purchase. Resulted with return code = 2. But no further info were given.");
                         }
                         return false;
                     default:
-                        return true;
+                        throw new NotImplementedException();
                 }
             }
         }

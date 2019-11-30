@@ -1,0 +1,47 @@
+﻿@page
+@model FurnitureShop.Pages.Admin.Furniture.CreateModel
+@{
+    ViewData["Title"] = "ADMIN";
+}
+
+<h1>Create</h1>
+<hr />
+
+@{
+    if (Model.Message != null)
+    {
+        <p style="color:@(Model.IsWarningMessage ? "red" : "green");"> @Model.Message </p>
+        <hr />
+    }
+}
+
+<form method="post" asp-page="Create" asp-page-handler="Create" style="background-color: lightgrey; padding:30px;">
+    Vendor: <input type="text" asp-for="Furniture.VendorCode" class="form-control" /><br />
+    Name: <input type="text" asp-for="Furniture.Name" class="form-control" /><br />
+    Price: <input type="text" asp-for="Furniture.Price" class="form-control" /><br />
+    Quantity: <input type="number" asp-for="Furniture.Quantity" class="form-control" /><br />
+    Category: <select asp-for="Furniture.CategoryID" style="width: 100%;">
+        @foreach (var item in Model.CategoryRepository.Items)
+        {
+            <option value="@item.ID">@item.Name</option>
+        }
+    </select><br />
+    Manufacturer: <select asp-for="Furniture.ManufacturerID" style="width: 100%;">
+        @foreach (var item in Model.ManufacturerRepository.Items)
+        {
+            <option value="@item.ID">@item.Name</option>
+        }
+    </select><br />
+    Collection: <select asp-for="Furniture.CollectionID" style="width: 100%;">
+        @foreach (var item in Model.CollectionRepository.Items)
+        {
+            <option value="@item.ID">@item.Name</option>
+        }
+    </select><br />
+    Image: <input type="text" asp-for="Furniture.Image" class="form-control" /><br />
+    <div style="text-align:center">
+        <a asp-page="Index" class="btn btn-secondary">Back</a>
+        <input type="submit" value="Save" class="btn-primary" style="width: 50%;" />
+    </div>
+</form>
+

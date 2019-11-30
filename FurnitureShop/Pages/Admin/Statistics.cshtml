@@ -1,0 +1,33 @@
+﻿@page
+@model FurnitureShop.Pages.Admin.StatisticsModel
+@{
+    ViewData["Title"] = "ADMIN Statistics";
+}
+
+<h1>Statistics</h1>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <h5>Самые продаваемые товары:</h5>
+        @{ 
+            Dictionary<Models.Furniture, int> counter = new Dictionary<Models.Furniture, int>();
+            Model.orderRepository.Items
+                .Where(oh => oh.Date != null)
+                .ToList()
+                .ForEach(oh => oh.OrderDetails.ForEach(od => 
+                { 
+                    if (counter.ContainsKey(od.Furniture))
+                    { 
+                        counter[od.Furniture] += od.Quantity;
+                    }
+                    else
+                    {
+                        counter[od.Furniture] = od.Quantity;
+                    }
+                }));
+            //TODO: stats.
+        }
+    </div>
+    <div class="col-md-4"></div>
+    <div class="col-md-4"></div>
+</div>

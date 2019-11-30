@@ -1,0 +1,64 @@
+﻿@page
+@model FurnitureShop.Pages.Account.RegisterModel
+@{
+    ViewData["Title"] = "Регистрация";
+}
+
+<h1>Регистрация</h1>
+<hr />
+<br />
+@{
+    if (Model.Message != null)
+    {
+        <p style="color:@(Model.IsWarningMessage ? "red" : "green");"> @Model.Message </p>
+        <hr />
+    }
+}
+
+
+<div class="container">
+    <div class="row">
+        <div class="col"></div>
+        <div class="col-6">
+            <form method="post">
+                <div class="form-group">
+                    <label asp-for="RegisterForm.Name">Пожалуйста, введите своё имя:</label>
+                    <input asp-for="RegisterForm.Name" class="form-control" autocomplete="off" />
+                    <span asp-validation-for="RegisterForm.Name" class="text-danger" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="RegisterForm.Email">Пожалуйста, введите свой адрес электронной почты:</label>
+                    <input asp-for="RegisterForm.Email" class="form-control" autocomplete="off" />
+                    <span asp-validation-for="RegisterForm.Email" class="text-danger" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="RegisterForm.Phone">Пожалуйста, введите свой мобильный телефон:</label>
+                    <input asp-for="RegisterForm.Phone" class="form-control" autocomplete="off" />
+                    <span asp-validation-for="RegisterForm.Phone" class="text-danger" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="RegisterForm.Password">Теперь введите пароль:</label>
+                    <input asp-for="RegisterForm.Password" class="form-control" autocomplete="off" />
+                    <span asp-validation-for="RegisterForm.Password" class="text-danger" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="RegisterForm.ConfirmPassword">Повторите пароль:</label>
+                    <input asp-for="RegisterForm.ConfirmPassword" class="form-control" autocomplete="off" />
+                    <span asp-validation-for="RegisterForm.ConfirmPassword" class="text-danger" />
+                </div>
+                <div class="text-center">
+                    <input type="submit" asp-page-handler="Register" value="Зарегистрироваться" class="btn btn-primary text-center" style="width: 90%;margin-top: 15px;" />
+                </div>
+            </form>
+        </div>
+        <div class="col"></div>
+    </div>
+</div>
+
+
+
+
+@section Scripts{
+    <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+}
