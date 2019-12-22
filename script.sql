@@ -123,47 +123,27 @@ CREATE TABLE FurnitureMaterial (
 )
 GO
 
-CREATE TABLE GrantType (
-	ID INT IDENTITY,
-	Name NVARCHAR(30) NOT NULL
-	
-	CONSTRAINT [PK_Grant] PRIMARY KEY (ID),
-	CONSTRAINT [UQ_Grant_Name] UNIQUE (Name)
-)
-GO
 
-CREATE TABLE Seller (
-	ID INT IDENTITY,
-	Email NVARCHAR(50) NOT NULL,
-	Password NVARCHAR(255) NOT NULL,
-	GrantID INT NOT NULL
-
-	CONSTRAINT [PK_Seller] PRIMARY KEY (ID),
-	CONSTRAINT [UQ_Seller_Email] UNIQUE (Email),
-	CONSTRAINT [FK_Seller_GrantID] FOREIGN KEY (GrantID) REFERENCES GrantType(ID)
-		ON DELETE CASCADE ON UPDATE CASCADE
-)
-GO
-
-CREATE TABLE Buyer (
+CREATE TABLE AppUser (
 	ID INT IDENTITY,
 	Name NVARCHAR(255) NOT NULL,
 	Phone NVARCHAR(20),
 	Email NVARCHAR(50) NOT NULL,
-	Password NVARCHAR(255) NOT NULL
+	Password NVARCHAR(255) NOT NULL,
+	IsAdmin BIT NOT NULL DEFAULT(0)
 
-	CONSTRAINT [PK_Buyer] PRIMARY KEY (ID),
-	CONSTRAINT [UQ_Buyer_Email] UNIQUE (Email)
+	CONSTRAINT [PK_AppUser] PRIMARY KEY (ID),
+	CONSTRAINT [UQ_AppUser_Email] UNIQUE (Email)
 )
 GO
 
 CREATE TABLE OrderHeader (
 	ID INT IDENTITY,
 	Date SMALLDATETIME,
-	BuyerID INT NOT NULL
+	AppUserID INT NOT NULL
 
 	CONSTRAINT [PK_OrderHeader] PRIMARY KEY (ID),
-	CONSTRAINT [FK_OrderHeader_BuyerID] FOREIGN KEY (BuyerID) REFERENCES Buyer(ID)
+	CONSTRAINT [FK_OrderHeader_AppUserID] FOREIGN KEY (AppUserID) REFERENCES AppUser(ID)
 		ON DELETE CASCADE ON UPDATE CASCADE
 )
 GO
@@ -247,7 +227,8 @@ INSERT INTO Size VALUES ('11111112', 'С закрытыми дверцами', 100,230, 60)
 INSERT INTO Size VALUES ('11111112', 'С открытыми дверцами', 100,230, 120)
 GO
 
-INSERT INTO Buyer VALUES ('Цой Игорь', '+38065891654', 'ihor.tsoi@nure.ua', 'pass')
+INSERT INTO AppUser VALUES ('Цой Игорь', '+38065891654', 'ihor.tsoi@nure.ua', 'pass', 1)
+INSERT INTO AppUser VALUES ('не Цой Игорь', '', 'не ihor.tsoi@nure.ua', 'pass', 0)
 GO
 
 INSERT INTO OrderHeader VALUES (CAST('2007-05-08 12:35:29' AS smalldatetime), 1)
@@ -259,12 +240,6 @@ INSERT INTO OrderDetail VALUES (1, '11111112', 1, 4700)
 INSERT INTO OrderDetail (OrderHeaderID, VendorCode, Quantity) VALUES (2, '11111112', 1)
 GO
 
-INSERT INTO GrantType VALUES ('Директор')
-INSERT INTO GrantType VALUES ('Продавец')
-GO
-
-INSERT INTO Seller VALUES ('some.mail@gmail.com', 'nopass', 2)
-GO
 
 
 
@@ -280,9 +255,7 @@ SELECT * FROM FurnitureColor;
 SELECT * FROM Size;
 SELECT * FROM OrderHeader;
 SELECT * FROM OrderDetail;
-SELECT * FROM Buyer;
-SELECT * FROM GrantType;
-SELECT * FROM Seller;
+SELECT * FROM AppUser;
 */
 
 /*
@@ -297,9 +270,7 @@ DELETE FROM FurnitureColor;
 DELETE FROM Size;
 DELETE FROM OrderHeader;
 DELETE FROM OrderDetail;
-DELETE FROM Buyer;
-DELETE FROM GrantType;
-DELETE FROM Seller;
+DELETE FROM AppUser;
 */
 
 
@@ -329,15 +300,15 @@ GO
 
 
 
--- 2) GET ALL ORDER INFO FOR EVERY USER
+-- 2) GET ALL ORDER INFO FOR EVERY AppUSER
 -- SELECT * FROM OrdersAll
 CREATE VIEW OrdersAll AS (
-	SELECT Buyer.ID as BuyerID, Buyer.Name,
+	SELECT AppUser.ID as AppUserID, AppUser.Name,
 		OrderHeader.ID as OrderHeaderID, OrderHeader.Date,
 		OrderDetail.VendorCode,Furniture.Name AS FurnitureName, OrderDetail.Quantity, OrderDetail.Price
-	FROM Buyer
+	FROM AppUser
 	INNER JOIN OrderHeader
-		ON Buyer.ID = OrderHeader.BuyerID
+		ON AppUser.ID = OrderHeader.AppUserID
 	LEFT JOIN OrderDetail
 		ON OrderHeader.ID = OrderDetail.OrderHeaderID
 	LEFT JOIN Furniture
@@ -379,7 +350,7 @@ AS
 RETURN (
 	SELECT * 
 	FROM OrderHeader
-	WHERE OrderHeader.BuyerID = @userID
+	WHERE OrderHeader.AppUserID = @userID
 )
 GO
 
@@ -405,80 +376,63 @@ GO
 
 
 
--- GET BUYER ID BY @email
+-- GET AppUSER ID BY @email
 /*
- 1. just get the first buyer's id where email equals
+ 1. just get the first user's id where email equals
 */
--- SELECT dbo.get_buyer_id_by_email('ihor.tsoi@nure.ua') => id or NULL
-CREATE FUNCTION dbo.get_buyer_id_by_email(@email NVARCHAR(50))
+-- SELECT dbo.get_user_id_by_email('ihor.tsoi@nure.ua') => id or NULL
+CREATE FUNCTION dbo.get_user_id_by_email(@email NVARCHAR(50))
 RETURNS INT
 AS
 BEGIN
-RETURN (SELECT TOP 1 ID FROM Buyer WHERE Email = @email);
+RETURN (SELECT TOP 1 ID FROM AppUser WHERE Email = @email);
 END
 GO
 
--- GET BUYER BY @email
+-- GET AppUSER BY @email
 /*
- 1. just get the first buyer where email equals
+ 1. just get the first user where email equals
 */
--- SELECT * FROM dbo.get_buyer_by_email('ihor.tsoi@nure.ua') => may be empty
-CREATE FUNCTION dbo.get_buyer_by_email(@email NVARCHAR(50))
+-- SELECT * FROM dbo.get_user_by_email('ihor.tsoi@nure.ua') => may be empty
+CREATE FUNCTION dbo.get_user_by_email(@email NVARCHAR(50))
 RETURNS TABLE
 AS
-RETURN (SELECT TOP 1 * FROM Buyer WHERE Email = @email);
+RETURN (SELECT TOP 1 * FROM AppUser WHERE Email = @email);
 GO
 
 
--- BUYER EXISTS (@email)
+-- AppUSER EXISTS (@email)
 /*
 	1. email is unique attribute, check if already exists
 */
--- SELECT dbo.buyer_exists('ihsor.tsoi@nure.ua')
-CREATE FUNCTION dbo.buyer_exists(@email NVARCHAR(50))
+-- SELECT dbo.user_exists('ihsor.tsoi@nure.ua')
+CREATE FUNCTION dbo.user_exists(@email NVARCHAR(50))
 RETURNS BIT
 AS
 BEGIN
 	RETURN CONVERT(BIT, (SELECT COUNT(ID)
-		FROM Buyer
+		FROM AppUser
 		WHERE Email = @email))
 END
 GO
 
 
--- VERIFY BUYER (@email, @pass)
+-- VERIFY AppUSER (@email, @pass)
 /*
 	1. check if user with @email and @pass exists
 */
--- SELECT dbo.verify_buyer('ihor.tsoi@nure.ua', 'pass')
-CREATE FUNCTION dbo.verify_buyer(@email NVARCHAR(50), @pass NVARCHAR(255))
+-- SELECT dbo.verify_user('ihor.tsoi@nure.ua', 'pass')
+CREATE FUNCTION dbo.verify_user(@email NVARCHAR(50), @pass NVARCHAR(255))
 RETURNS BIT
 AS
 BEGIN
 	RETURN CONVERT(BIT, (SELECT COUNT(ID)
-		FROM Buyer
+		FROM AppUser
 		WHERE Email = @email AND
 			Password = @pass))
 END
 GO
 
-
-
--- VERIFY SELLER (@email, @pass)
-/*
-	1. check if user with @email and @pass exists
-*/
--- SELECT dbo.verify_seller('some.mail@gmail.com', 'nopass')
-CREATE FUNCTION dbo.verify_seller(@email NVARCHAR(50), @pass NVARCHAR(255))
-RETURNS BIT
-AS
-BEGIN
-	RETURN CONVERT(BIT, (SELECT COUNT(ID)
-		FROM Seller
-		WHERE Email = @email AND
-			Password = @pass))
-END
-GO
 
 
 -- EVALUATE DEGREE OF COINCIDENCE (@name, @category, @manufacturer, @collection, @query) [FOR SEARCH ALGO]
@@ -642,33 +596,33 @@ GO
 
 
 
--- USER REGISTRATION (@name, @phone, @email, @password) 
+-- AppUSER REGISTRATION (@name, @phone, @email, @password) 
 --											: @success(return code: 0 --> ok, 1 --> fail)
 /*
  1. create transaction
- 2. insert into [Buyer], get [ID] (select @ID = SCOPE_IDENTITY())
+ 2. insert into [AppUser], get [ID] (select @ID = SCOPE_IDENTITY())
  2. initialize the order header
 */
 /*
 	DECLARE @res INT
-	EXEC @res = register_buyer 'name', '1231231', 'iqq@wqwqwk.lq', ''
+	EXEC @res = register_user 'name', '1231231', 'iqq@wqwqwk.lq', ''
 	PRINT @res
 */
-CREATE PROCEDURE register_buyer
+CREATE PROCEDURE register_user
 	@name NVARCHAR(255), @phone NVARCHAR(20) = NULL,
-	@email NVARCHAR(50), @password NVARCHAR(255)
+	@email NVARCHAR(50), @password NVARCHAR(255), @isAdmin BIT = 0
 AS
 	IF ((@name IS NULL) OR (@email IS NULL) OR (@password IS NULL) 
 		OR (LEN(@name) < 1) OR (LEN(@password) < 4)
 		OR (@email NOT LIKE '_%@__%.__%')
-		OR (SELECT COUNT(ID) FROM Buyer WHERE Email LIKE @email) <> 0)
+		OR (SELECT COUNT(ID) FROM AppUser WHERE Email LIKE @email) <> 0)
 		-- the input data is invalid
 		RETURN 1
 	--
 	SET XACT_ABORT ON
 	BEGIN TRANSACTION
-		INSERT INTO Buyer
-			VALUES (@name, @phone, @email, @password)
+		INSERT INTO AppUser
+			VALUES (@name, @phone, @email, @password, @isAdmin)
 		--
 		INSERT INTO OrderHeader
 			VALUES (NULL, SCOPE_IDENTITY())
@@ -693,7 +647,7 @@ CREATE PROCEDURE add_to_cart
 	@id INT, @vendor_code NVARCHAR(16)
 AS
 	IF (EXISTS(SELECT 1 FROM Furniture WHERE VendorCode LIKE @vendor_code) AND
-			EXISTS(SELECT 1 FROM Buyer WHERE ID = @id))
+			EXISTS(SELECT 1 FROM AppUser WHERE ID = @id))
 	BEGIN
 		--
 		DECLARE @oh_id INT;
@@ -704,7 +658,7 @@ AS
 			--
 			UPDATE OrdersAll
 			SET Quantity += 1
-			WHERE BuyerID = @id AND OrderHeaderID = @oh_id AND VendorCode = @vendor_code
+			WHERE AppUserID = @id AND OrderHeaderID = @oh_id AND VendorCode = @vendor_code
 		END;
 		ELSE
 		BEGIN
@@ -776,7 +730,7 @@ AS
 	DECLARE @oh_id INT;
 	SELECT TOP 1 @oh_id =  ID FROM get_all_ohs(@id) WHERE Date IS NULL
 	--
-	IF (EXISTS(SELECT 1 FROM Buyer WHERE ID = @id)) AND 
+	IF (EXISTS(SELECT 1 FROM AppUser WHERE ID = @id)) AND 
 		(EXISTS(SELECT 1 FROM OrderDetail WHERE OrderHeaderID = @oh_id))
 	BEGIN
 		IF (0 = ANY(
