@@ -56,7 +56,7 @@ namespace FurnitureShop.Documents
 
             paragraph.AddTextLines(
                 $"Дата: {DateTime.Now.ToString("d")}",
-                $"Покупатель: {orderHeader.Buyer.Name}");
+                $"Покупатель: {orderHeader.AppUser.Name}");
 
             paragraph.AddLineBreaks(count: 4);
 

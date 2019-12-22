@@ -19,6 +19,7 @@ namespace FurnitureShop.ViewModels.Account
         public string Phone { get; set; }
 
         [Required(ErrorMessage = "Не указан пароль")]
+        [MinLength(4, ErrorMessage = "Пароль не должен быть короче 4 символов.")]
         [DataType(DataType.Password)]
         public string Password { get; set; }
 

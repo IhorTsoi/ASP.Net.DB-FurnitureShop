@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using FurnitureShop.Models.Users;
 using FurnitureShop.Repositories;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -31,10 +30,10 @@ namespace FurnitureShop.Pages.Account
         public RegisterViewModel RegisterForm { get; set; }
         public IActionResult OnPostRegister()
         {
-            BuyerRepository userRepository = new BuyerRepository();
+            AppUserRepository userRepository = new AppUserRepository();
             if (ModelState.IsValid)
             {
-                bool exists = userRepository.BuyerExists(RegisterForm.Email);
+                bool exists = userRepository.UserExists(RegisterForm.Email);
                 if (!exists)
                 {
                     bool registered = userRepository.Register(

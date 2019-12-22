@@ -11,14 +11,14 @@ namespace FurnitureShop.Pages.Admin
     public class StatisticsModel : PageModel
     {
         public OrderRepository orderRepository { get; set; }
-        public BuyerRepository buyerRepository { get; set; }
+        public AppUserRepository userRepository { get; set; }
         public FurnitureRepository furnitureRepository { get; set; }
         public StatisticsModel()
         {
             orderRepository = new OrderRepository();
             orderRepository.Initialize();
-            buyerRepository = new BuyerRepository();
-            buyerRepository.Initialize();
+            userRepository = new AppUserRepository();
+            userRepository.Initialize();
             furnitureRepository = new FurnitureRepository();
             furnitureRepository.Initialize();
         }

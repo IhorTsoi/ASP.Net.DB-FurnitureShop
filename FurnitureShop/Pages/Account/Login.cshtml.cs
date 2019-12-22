@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using FurnitureShop.Models.Users;
 using FurnitureShop.Repositories;
 using FurnitureShop.Utils;
 using Microsoft.AspNetCore.Authentication;
@@ -31,13 +30,15 @@ namespace FurnitureShop.Pages.Account
         public LoginViewModel LoginForm { get; set; }
         public async Task<IActionResult> OnPostLogin()
         {
-            BuyerRepository userRepository = new BuyerRepository();
+            AppUserRepository userRepository = new AppUserRepository();
             if (ModelState.IsValid)
             {
-                bool verified = userRepository.VerifyBuyer(LoginForm.Email, LoginForm.Password);
+                bool verified = userRepository.VerifyUser(LoginForm.Email, LoginForm.Password);
                 if (verified)
                 {
-                    await Authenticate(LoginForm.Email); // аутентификация
+                    userRepository = new AppUserRepository(LoginForm.Email);
+                    userRepository.Initialize();
+                    await Authenticate(LoginForm.Email, userRepository.FirstOrDefault().IsAdmin); // аутентификация
                     return Redirect("/Index");
                 }
                 Message = "Некорректные логин и/или пароль.";
@@ -52,12 +53,16 @@ namespace FurnitureShop.Pages.Account
             return Redirect("/Index");
         }
 
-        private async Task Authenticate(string userName)
+        private async Task Authenticate(string userName, bool isAdmin)
         {
             var claims = new List<Claim>
             {
                 new Claim(ClaimsIdentity.DefaultNameClaimType, userName)
             };
+            if (isAdmin)
+            {
+                claims.Add(new Claim("IsAdmin", ""));
+            }
             ClaimsIdentity id = new ClaimsIdentity(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));
         }

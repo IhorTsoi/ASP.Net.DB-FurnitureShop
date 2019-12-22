@@ -1,5 +1,4 @@
-﻿using FurnitureShop.Models.Users;
-using FurnitureShop.Utils;
+﻿using FurnitureShop.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,19 +9,19 @@ namespace FurnitureShop.Models
 {
     public class OrderHeader : IEquatable<OrderHeader>
     {
-        public OrderHeader(int iD, DateTime? date, int buyerID)
+        public OrderHeader(int iD, DateTime? date, int userID)
         {
             ID = iD;
             Date = date;
-            BuyerID = buyerID;
+            AppUserID = userID;
         }
 
         public int ID { get; set; }
         public DateTime? Date { get; set; }
-        public int BuyerID { get; set; }
+        public int AppUserID { get; set; }
 
         // may be lazy
-        public Buyer Buyer { get; set; }
+        public AppUser AppUser { get; set; }
         public ListDistinct<OrderDetail> OrderDetails { get; set; } = new ListDistinct<OrderDetail>();
 
         public bool Equals(OrderHeader other)
@@ -35,7 +34,7 @@ namespace FurnitureShop.Models
             StringBuilder res = new StringBuilder();
             res.AppendLine($"ID: {ID}");
             res.AppendLine($"Date: {(Date == null ? "no date" : Date.ToString())}");
-            res.AppendLine($"BuyerId: {BuyerID}");
+            res.AppendLine($"UserId: {AppUserID}");
             res.AppendLine("Order details:");
             foreach (var item in OrderDetails)
             {

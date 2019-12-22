@@ -25,8 +25,8 @@ namespace FurnitureShop.Pages
         {
             if (User.Identity.IsAuthenticated)
             {
-                BuyerRepository buyerRepository = new BuyerRepository();
-                int id = buyerRepository.GetIdByEmail(User.Identity.Name);
+                AppUserRepository userRepository = new AppUserRepository();
+                int id = userRepository.GetIdByEmail(User.Identity.Name);
                 OrderRepository orderRepository = new OrderRepository(id);
                 orderRepository.AddToCart(vendorCode);
                 return Redirect("~/ShoppingCart");

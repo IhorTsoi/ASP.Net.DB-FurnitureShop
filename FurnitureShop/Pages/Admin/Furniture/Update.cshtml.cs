@@ -65,7 +65,7 @@ namespace FurnitureShop.Pages.Admin.Furniture
                 Message = "The try to update was incorrect.";
                 IsWarningMessage = true;
             }
-            return RedirectToPage("Update", new { vendor = Furniture.VendorCode });
+            return RedirectToPage("Index");
         }
 
         public IActionResult OnPostSetSale(string vendor, bool enabled, int price)
@@ -87,7 +87,7 @@ namespace FurnitureShop.Pages.Admin.Furniture
                 Message = "The try to update was incorrect.";
                 IsWarningMessage = true;
             }
-            return RedirectToPage("Update", new { vendor });
+            return RedirectToPage("Index");
         }
 
         public IActionResult OnPostAddColor(string vendor, int colorId)

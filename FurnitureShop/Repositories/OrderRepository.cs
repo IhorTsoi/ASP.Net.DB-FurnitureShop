@@ -22,7 +22,7 @@ namespace FurnitureShop.Repositories
         public OrderRepository(int userId)
         {
             this.userId = userId;
-            cmd = new SqlCommand(cmdText: "Select * from OrdersAll Where BuyerId = @id;");
+            cmd = new SqlCommand(cmdText: "Select * from OrdersAll Where AppUserId = @id;");
             cmd.Parameters.Add(new SqlParameter("@id", userId));
         }
 
@@ -39,14 +39,14 @@ namespace FurnitureShop.Repositories
                 {
                     while (reader.Read())
                     {
-                        if (prev == null || !(prev.BuyerID == reader.GetInt32(0) && prev.ID == reader.GetInt32(2)))
+                        if (prev == null || !(prev.AppUserID == reader.GetInt32(0) && prev.ID == reader.GetInt32(2)))
                         {
-                            int buyerID = reader.GetInt32(0);
-                            string buyerName = reader.GetString(1);
+                            int userID = reader.GetInt32(0);
+                            string userName = reader.GetString(1);
                             int orderHeaderId = reader.GetInt32(2);
                             DateTime? date = reader.IsDBNull(3) ? null : (DateTime?)reader.GetDateTime(3);
-                            prev = new OrderHeader(orderHeaderId, date, buyerID);
-                            prev.Buyer = new Models.Users.Buyer(buyerName, null, null);
+                            prev = new OrderHeader(orderHeaderId, date, userID);
+                            prev.AppUser = new AppUser(userName, null, null);
                             Items.Add(prev);
                         }
 

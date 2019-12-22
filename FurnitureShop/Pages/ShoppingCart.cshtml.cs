@@ -24,8 +24,8 @@ namespace FurnitureShop.Pages
         private int userId
         {
             get { 
-                BuyerRepository buyerRepository = new BuyerRepository();
-                return buyerRepository.GetIdByEmail(User.Identity.Name);
+                AppUserRepository userRepository = new AppUserRepository();
+                return userRepository.GetIdByEmail(User.Identity.Name);
             } 
         }
 
