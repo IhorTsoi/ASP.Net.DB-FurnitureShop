@@ -35,7 +35,7 @@ namespace FurnitureShop.Repositories
                     cmd.Parameters.Add(new SqlParameter("@vendor", query));
                     break;
                 case QueryMode.Recommendations:
-                    cmd = new SqlCommand("SELECT TOP 30 * FROM get_recommendations(@userId) ORDER BY Degree DESC;");
+                    cmd = new SqlCommand("SELECT TOP 30 * FROM get_recommendations(@userId) WHERE Quantity > 0 ORDER BY Degree DESC;");
                     cmd.Parameters.Add(new SqlParameter("@userId", query));
                     break;
                 case QueryMode.BySearchQuery:

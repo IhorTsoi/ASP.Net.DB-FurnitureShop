@@ -12,9 +12,9 @@ namespace FurnitureShop
     public class Program
     {
         // comp :
-        public static readonly string ConnectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=D:\nure\AllSTUDIES\DB\ASP.Net.DB-FurnitureShop\SQL SERVER DATABASE\FurnitureShop.mdf;Integrated Security=True;Connect Timeout=30";
+        //public static readonly string ConnectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=D:\nure\AllSTUDIES\DB\ASP.Net.DB-FurnitureShop\SQL SERVER DATABASE\FurnitureShop.mdf;Integrated Security=True;Connect Timeout=30";
         // laptop :
-        // public static readonly string ConnectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=D:\Nure\DB\Lab2.DB\DB.ADO.Console\SQL SERVER DATABASE\FurnitureShop.mdf;Integrated Security=True;Connect Timeout=30";
+        public static readonly string ConnectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=D:\Nure\DB\Lab2-3.DB\FurnitureShop\SQL SERVER DATABASE\FurnitureShop.mdf;Integrated Security=True;Connect Timeout=30";
 
         public static void Main(string[] args)
         {

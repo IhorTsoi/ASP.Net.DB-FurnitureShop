@@ -2,24 +2,50 @@
 
 <div class="col-md-4 furniture_node">
     <div class="block">
-        <div>
+        @if (Model.Quantity > 0)
+        {
+            <div>
+                <a asp-page="Details" asp-route-vendorCode="@Model.VendorCode">
+                    <img src="img/@Model.Image" />
+                </a>
+            </div>
+
             <a asp-page="Details" asp-route-vendorCode="@Model.VendorCode">
-                <img src="img/@Model.Image" />
+                <h5>@Model.Name</h5>
             </a>
-        </div>
+        }
+        else
+        {
+            <div>
+                <img src="img/@Model.Image" />
+            </div>
 
-        <a asp-page="Details" asp-route-vendorCode="@Model.VendorCode">
-            <h5>@Model.Name</h5>
-        </a>
+            <h5 style="color: grey;">Нет на складе :(</h5>
+        }
 
+        
         <hr />
-        <p><b>Цена:</b> @Model.Price</p>
+        <p>
+            @if (Model.IsOnSale)
+            {
+                <b style="color: #5fb000;">Цена со скидкой:</b>
+            }
+            else
+            {
+                <b>Цена:</b>
+            }
+            @Model.Price
+        </p>
 
         <p>
             <b>Производитель:</b>
             <a asp-page="Furniture" asp-page-handler="Manufacturer" asp-route-manufacturerId="@Model.Manufacturer.ID">
                 @Model.Manufacturer.Name
             </a>
+        </p>
+        <p>
+            <b>Количество просмотров:</b>
+            @Model.Rate
         </p>
 
         <div hidden class="furniture_info">

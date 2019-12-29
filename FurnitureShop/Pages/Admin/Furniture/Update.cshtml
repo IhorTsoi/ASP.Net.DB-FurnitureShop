@@ -51,12 +51,15 @@
     @{
         if (Model.Furniture.IsOnSale)
         {
-            <p>Sale: </p> <input type="checkbox" name="enabled" value="false" checked /><br />
+            <p>Sale: </p>
+            @Html.CheckBox("enabled", true)
             <p>Price: </p> <input type="number" name="price" value="@((int)Model.Furniture.Price)" />
         }
         else
         {
-            <p>Sale: </p> <input type="checkbox" value="true" name="enabled" /><br />
+            <p>Sale: </p>
+            @Html.CheckBox("enabled", false)
+            <br />
             <p>Price: </p> <input type="number" name="price" value="@((int)Model.Furniture.Price)" />
         }
     }
