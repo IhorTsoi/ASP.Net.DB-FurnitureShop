@@ -4,7 +4,7 @@
     ViewData["Title"] = "ADMIN";
 }
 
-<h1>Collections</h1>
+<h1>Коллекции</h1>
 <hr />
 
 @{
@@ -19,9 +19,9 @@
     <thead>
         <tr>
             <th scope="col">#</th>
-            <th scope="col">Name</th>
-            <th scope="col">Description</th>
-            <th>Delete</th>
+            <th scope="col">Название</th>
+            <th scope="col">Описание</th>
+            <th>Удалить</th>
         </tr>
     </thead>
     <tbody>
@@ -34,7 +34,7 @@
                 <td>
                     <form method="post" asp-page="Index" asp-page-handler="Delete">
                         <input type="hidden" name="id" value="@item.ID" />
-                        <input type="submit" value="Del." class="btn btn-danger" />
+                        <input type="submit" value="Удалить" class="btn btn-danger" />
                     </form>
                 </td>
             </tr>
@@ -42,4 +42,4 @@
     </tbody>
 </table>
 
-<a asp-page="Create" class="btn btn-outline-primary" style="width:100%;">Create</a>
+<a asp-page="Create" class="btn btn-outline-primary" style="width:100%;">Создать</a>

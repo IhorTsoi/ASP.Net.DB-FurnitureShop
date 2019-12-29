@@ -4,7 +4,7 @@
     ViewData["Title"] = "ADMIN";
 }
 
-<h1>Create</h1>
+<h1>Создать</h1>
 <hr />
 
 @{
@@ -15,34 +15,34 @@
     }
 }
 
-<form method="post" asp-page="Create" asp-page-handler="Create" style="background-color: lightgrey; padding:30px;" enctype="multipart/form-data">
-    Vendor: <input type="text" asp-for="Furniture.VendorCode" class="form-control" /><br />
-    Name: <input type="text" asp-for="Furniture.Name" class="form-control" /><br />
-    Price: <input type="text" asp-for="Furniture.Price" class="form-control" /><br />
-    Quantity: <input type="number" asp-for="Furniture.Quantity" class="form-control" /><br />
-    Category: <select asp-for="Furniture.CategoryID" style="width: 100%;">
+<form method="post" asp-page="Create" asp-page-handler="Create" style="background-color: #f6f6f6; padding:30px;" enctype="multipart/form-data">
+    Артикул: <input type="text" asp-for="Furniture.VendorCode" class="form-control" /><br />
+    Название: <input type="text" asp-for="Furniture.Name" class="form-control" /><br />
+    Цена: <input type="text" asp-for="Furniture.Price" class="form-control" /><br />
+    Количество: <input type="number" asp-for="Furniture.Quantity" class="form-control" /><br />
+    Категория: <select asp-for="Furniture.CategoryID" style="width: 100%;">
         @foreach (var item in Model.CategoryRepository.Items)
         {
             <option value="@item.ID">@item.Name</option>
         }
     </select><br />
-    Manufacturer: <select asp-for="Furniture.ManufacturerID" style="width: 100%;">
+    Производитель: <select asp-for="Furniture.ManufacturerID" style="width: 100%;">
         @foreach (var item in Model.ManufacturerRepository.Items)
         {
             <option value="@item.ID">@item.Name</option>
         }
     </select><br />
-    Collection: <select asp-for="Furniture.CollectionID" style="width: 100%;">
+    Коллекция: <select asp-for="Furniture.CollectionID" style="width: 100%;">
         @foreach (var item in Model.CollectionRepository.Items)
         {
             <option value="@item.ID">@item.Name</option>
         }
     </select><br />
-    Image: <br/>
+    Изображение: <br/>
     <input type="file" name="image"/>
     <div style="text-align:center">
-        <a asp-page="Index" class="btn btn-secondary">Back</a>
-        <input type="submit" value="Save" class="btn-primary" style="width: 50%;" />
+        <a asp-page="Index" class="btn btn-secondary">Назад</a>
+        <input type="submit" value="Сохранить" class="btn-primary" style="width: 50%;" />
     </div>
 </form>
 

@@ -19,7 +19,7 @@ namespace FurnitureShop.Pages
             furnitureRepository = new FurnitureRepository(QueryMode.BySearchQuery, query: query);
             furnitureRepository.Initialize();
             Furniture = furnitureRepository.Items.ToArray();
-            ViewData["Subtitle"] = "Мебель | Артикул " + query;
+            ViewData["Subtitle"] = "Мебель | По запросу: " + query;
         }
 
         public void OnGetAll()

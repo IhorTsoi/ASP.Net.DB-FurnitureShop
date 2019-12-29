@@ -28,13 +28,16 @@
                         <a asp-page="Details" asp-route-vendorCode="@od.Furniture.VendorCode">
                             <h4 class="card-title">@od.Furniture.Name</h4>
                         </a>
+                        <p style="font-variant-caps: all-small-caps;font-family: monospace;color: grey;">
+                            Артикул: @od.Furniture.VendorCode
+                        </p>
                         <hr />
                         <h5 class="card-subtitle mb-2">Количество: @od.Quantity</h5>
                         <form method="post">
                             <input type="hidden" name="vendorCode" value="@od.VendorCode" />
                             <hr />
                             <div class="btn-group" role="group" aria-label="Basic example">
-                                <input type="submit" asp-page-handler="Remove" value="Убрать" class="btn btn-default" />
+                                <input type="submit" asp-page-handler="Remove" value="Убрать" class="btn btn-danger" />
                             </div>
                         </form>
                     </div>
@@ -44,7 +47,7 @@
     </div>
     <div style="margin: 20px;text-align: center;">
         <form method="post">
-            <input type="submit" asp-page-handler="Confirm" value="Купить" class="btn btn-outline-primary" style="width: 300px;" />
+            <input type="submit" asp-page-handler="Confirm" value="Купить" class="btn btn-outline-success" style="width: 300px;" />
         </form>
     </div>
 
@@ -72,7 +75,7 @@ else
         foreach (var oh in Model.PreviousOrderHeaders)
         {
             <ul class="list-group">
-                <li class="list-group-item active">Date: @oh.Date</li>
+                <li class="list-group-item active">Дата покупки: @oh.Date</li>
                 @foreach (var od in oh.OrderDetails)
                 {
                     <li class="list-group-item">
