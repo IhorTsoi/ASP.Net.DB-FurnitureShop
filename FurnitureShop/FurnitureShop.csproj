@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\img\ikea\" />
+    <Folder Include="wwwroot\img\" />
   </ItemGroup>
 
 </Project>

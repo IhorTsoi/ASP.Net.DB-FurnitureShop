@@ -1,4 +1,5 @@
 ﻿using FurnitureShop.Utils;
+using Microsoft.AspNetCore.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,6 +27,11 @@ namespace FurnitureShop.Models
             {
                 throw new Exception("Furniture mustn't have an empty vendor code, name. Price and Quantity are positive.");
             }
+        }
+
+        public static string GetFileName(Furniture f, string filename)
+        {
+            return "/img/" + f.VendorCode + "." + filename.Split('.').Last();
         }
 
         public Furniture(string vendorCode, string name, decimal price, int quantity, int categoryID, int manufacturerID, int collectionID, string image)

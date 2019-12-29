@@ -15,7 +15,7 @@
     }
 }
 
-<form method="post" asp-page="Create" asp-page-handler="Create" style="background-color: lightgrey; padding:30px;">
+<form method="post" asp-page="Create" asp-page-handler="Create" style="background-color: lightgrey; padding:30px;" enctype="multipart/form-data">
     Vendor: <input type="text" asp-for="Furniture.VendorCode" class="form-control" /><br />
     Name: <input type="text" asp-for="Furniture.Name" class="form-control" /><br />
     Price: <input type="text" asp-for="Furniture.Price" class="form-control" /><br />
@@ -38,7 +38,8 @@
             <option value="@item.ID">@item.Name</option>
         }
     </select><br />
-    Image: <input type="text" asp-for="Furniture.Image" class="form-control" /><br />
+    Image: <br/>
+    <input type="file" name="image"/>
     <div style="text-align:center">
         <a asp-page="Index" class="btn btn-secondary">Back</a>
         <input type="submit" value="Save" class="btn-primary" style="width: 50%;" />

@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using FurnitureShop.Repositories;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -14,11 +17,15 @@ namespace FurnitureShop.Pages.Admin.Furniture
         public string Message { get; set; }
         [TempData]
         public bool IsWarningMessage { get; set; }
-        [BindProperty]
-        public Models.Furniture Furniture{ get; set; }
         public CategoryRepository CategoryRepository { get; set; }
         public ManufacturerRepository ManufacturerRepository { get; set; }
         public CollectionRepository CollectionRepository { get; set; }
+        private IWebHostEnvironment _env;
+
+        public CreateModel(IWebHostEnvironment appEnvironment)
+        {
+            _env = appEnvironment;
+        }
 
         public void OnGet()
         {
@@ -34,12 +41,23 @@ namespace FurnitureShop.Pages.Admin.Furniture
             CategoryRepository = new CategoryRepository();
             CategoryRepository.Initialize();
         }
-        public IActionResult OnPostCreate()
+
+        [BindProperty]
+        public Models.Furniture Furniture { get; set; }
+        public IActionResult OnPostCreate(IFormFile image)
         {
             try
             {
+                Furniture.Image = Models.Furniture.GetFileName(Furniture, image.FileName);
                 FurnitureRepository furnitureRepository = new FurnitureRepository();
                 furnitureRepository.Create(Furniture);
+                if (image != null)
+                {
+                    using (var fs = new FileStream(_env.WebRootPath + Furniture.Image, FileMode.Create))
+                    {
+                        image.CopyTo(fs);
+                    }
+                }
             }
             catch (Exception)
             {
