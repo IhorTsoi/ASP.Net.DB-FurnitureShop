@@ -151,5 +151,35 @@ namespace FurnitureShop.Pages.Admin.Furniture
         }
 
         // TODO: sizes
+
+        public IActionResult OnPostAddSize(string vendor, string type, int w, int h, int d)
+        {
+            furnitureRepository = new FurnitureRepository();
+            try
+            {
+                Size s = new Size(vendor, type, w, h, d);
+                furnitureRepository.AddSize(vendor, s);
+            }
+            catch
+            {
+                Message = "The try to add size was incorrect.";
+                IsWarningMessage = true;
+            }
+            return RedirectToPage("Update", new { vendor });
+        }
+        public IActionResult OnPostDeleteSize(string vendor, string type)
+        {
+            furnitureRepository = new FurnitureRepository();
+            try
+            {
+                furnitureRepository.DeleteSize(vendor, type);
+            }
+            catch
+            {
+                Message = "The try to delete size was incorrect.";
+                IsWarningMessage = true;
+            }
+            return RedirectToPage("Update", new { vendor });
+        }
     }
 }

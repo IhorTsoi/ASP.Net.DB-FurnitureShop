@@ -53,6 +53,7 @@
 </div>
 
 <hr />
+
 @if (Model.Furniture.Length != 0)
 {
     <div class="row" id="root">
@@ -67,6 +68,7 @@
 }
 else
 {
+    <div id="root"></div>
     <div style="margin-top : 25px; text-align: center;">
         <p>К сожалению, ничего не нашлось...</p>
         <a asp-page="/Index" class="btn-link">На главную</a>

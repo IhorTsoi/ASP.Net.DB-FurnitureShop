@@ -38,8 +38,14 @@
                     <ul class="navbar-nav">
                         @if (User.Identity.IsAuthenticated)
                         {
+                            if (User.HasClaim("IsAdmin", ""))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-area="" asp-page="/Admin/Index">Админ-панель</a>
+                                </li>
+                            }
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-page="ShoppingCart">Корзина</a>
+                                <a class="nav-link" asp-area="" asp-page="/ShoppingCart">Корзина</a>
                             </li>
                             <li class="nav-item">
                                 <form method="post">

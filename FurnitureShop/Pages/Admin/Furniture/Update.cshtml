@@ -6,6 +6,7 @@
 
 <h1>Обновить данные</h1>
 <hr />
+
 @{
     if (Model.Message != null)
     {
@@ -13,6 +14,7 @@
         <hr />
     }
 }
+
 <form method="post" asp-page="Update" asp-page-handler="Update" style="background-color: #f6f6f6; padding:30px;">
     <h3>Общее:</h3>
     <hr />
@@ -46,34 +48,86 @@
 </form>
 <hr />
 
-<h3>Скидка:</h3>
-<hr />
-<form method="post" asp-page="Update" asp-page-handler="SetSale">
-    <input type="hidden" name="vendor" value="@Model.Furniture.VendorCode" />
-    @{
-        if (Model.Furniture.IsOnSale)
-        {
-            <p style="display:inline-block">Установить скидку? </p>
-            @Html.CheckBox("enabled", true)
-            <p>Цена со скидкой: </p> <input type="number" name="price" value="@((int)Model.Furniture.Price)" />
+<div>
+    <h3>Скидка:</h3>
+    <hr />
+    <form method="post" asp-page="Update" asp-page-handler="SetSale">
+        <input type="hidden" name="vendor" value="@Model.Furniture.VendorCode" />
+        @{
+            if (Model.Furniture.IsOnSale)
+            {
+                <p style="display:inline-block">Установить скидку? </p>
+                @Html.CheckBox("enabled", true)
+                <p>Цена со скидкой: </p> <input type="number" name="price" value="@((int)Model.Furniture.Price)" />
+            }
+            else
+            {
+                <p style="display:inline-block">Установить скидку? </p>
+                @Html.CheckBox("enabled", false)
+                <br />
+                <p>Цена со скидкой: </p> <input type="number" name="price" value="@((int)Model.Furniture.Price)" />
+            }
         }
-        else
-        {
-            <p style="display:inline-block">Установить скидку? </p>
-            @Html.CheckBox("enabled", false)
-            <br />
-            <p>Цена со скидкой: </p> <input type="number" name="price" value="@((int)Model.Furniture.Price)" />
-        }
-    }
 
-    <div style="text-align:center">
-        <a asp-page="Index" class="btn btn-secondary">Назад</a>
-        <input type="submit" value="Сохранить" class="btn btn-primary" style="width: 50%;" />
-    </div>
-</form>
+        <div style="text-align:center">
+            <a asp-page="Index" class="btn btn-secondary">Назад</a>
+            <input type="submit" value="Сохранить" class="btn btn-primary" style="width: 50%;" />
+        </div>
+    </form>
+</div>
 <hr />
+
 
 <div style="background-color: #f6f6f6; padding:30px;">
+    <h3>Размеры: </h3>
+    <hr />
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Тип</th>
+                <th scope="col">Ширина, см</th>
+                <th scope="col">Высота, см</th>
+                <th scope="col">Глубина, см</th>
+                <th scope="col">Удалить</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var size in Model.Furniture.Sizes)
+            {
+                <tr>
+                    <th scope="row">@size.Type</th>
+                    <td>@size.Width</td>
+                    <td>@size.Height</td>
+                    <td>@size.Depth</td>
+                    <td>
+                        <form method="post" asp-page="Update">
+                            <input type="hidden" name="vendor" value="@size.VendorCode" />
+                            <input type="hidden" name="type" value="@size.Type" />
+                            <input type="submit" asp-page-handler="DeleteSize" value="удалить" class="btn btn-danger" />
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <hr />
+    <h2>Добавить размер:</h2>
+    <form method="post" asp-page="Update" asp-page-handler="AddSize">
+        <input type="hidden" name="vendor" value="@Model.Furniture.VendorCode" />
+
+        Тип: <input type="text" name="type" class="form-control" placeholder="например, с открытыми дверцами" /><br />
+        Ширина: <input type="number" name="w" class="form-control" /><br />
+        Высота: <input type="number" name="h" class="form-control" /><br />
+        Глубина: <input type="number" name="d" class="form-control" /><br />
+        <div style="text-align:center">
+            <input type="submit" value="Добавить" class="btn btn-primary" style="width: 50%;"/>
+        </div>
+    </form>
+</div>
+<hr />
+
+
+<div style="padding:30px;">
     <h3>Цвета: </h3>
     <hr />
     <table class="table">
@@ -115,41 +169,43 @@
 </div>
 <hr />
 
-<h3>Материалы:</h3>
-<hr />
-<table class="table">
-    <thead>
-        <tr>
-            <th scope="col">#</th>
-            <th scope="col">Название</th>
-            <th scope="col">Текстура</th>
-            <th scope="col">Добавить / Удалить</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var material in Model.MaterialRepository.Items)
-        {
+<div style="background-color: #f6f6f6;padding:30px;">
+    <h3>Материалы:</h3>
+    <hr />
+    <table class="table">
+        <thead>
             <tr>
-                <th scope="row">@material.ID</th>
-                <td>@material.Name</td>
-                <td><div style="width:50px;height:50px; background-color:grey;"></div></td>
-                <td>
-                    <form method="post" asp-page="Update">
-                        <input type="hidden" name="vendor" value="@Model.Furniture.VendorCode" />
-                        <input type="hidden" name="materialId" value="@material.ID" />
-                        @if (Model.Furniture.Materials.Contains(material))
-                        {
-                            <input type="submit" asp-page-handler="DeleteMaterial" value="Удалить" class="btn btn-danger" />
-                        }
-                        else
-                        {
-                            <input type="submit" asp-page-handler="AddMaterial" value="Добавить" class="btn btn-primary" />
-                        }
-                    </form>
-                </td>
+                <th scope="col">#</th>
+                <th scope="col">Название</th>
+                <th scope="col">Текстура</th>
+                <th scope="col">Добавить / Удалить</th>
             </tr>
-        }
-    </tbody>
-</table>
-<a asp-page="./Materials" class="btn btn-info" style="width: 100%;">Создать новые материалы!</a>
-<hr />
+        </thead>
+        <tbody>
+            @foreach (var material in Model.MaterialRepository.Items)
+            {
+                <tr>
+                    <th scope="row">@material.ID</th>
+                    <td>@material.Name</td>
+                    <td><div style="width:50px;height:50px; background-color:grey;"></div></td>
+                    <td>
+                        <form method="post" asp-page="Update">
+                            <input type="hidden" name="vendor" value="@Model.Furniture.VendorCode" />
+                            <input type="hidden" name="materialId" value="@material.ID" />
+                            @if (Model.Furniture.Materials.Contains(material))
+                            {
+                                <input type="submit" asp-page-handler="DeleteMaterial" value="Удалить" class="btn btn-danger" />
+                            }
+                            else
+                            {
+                                <input type="submit" asp-page-handler="AddMaterial" value="Добавить" class="btn btn-primary" />
+                            }
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <a asp-page="./Materials" class="btn btn-info" style="width: 100%;">Создать новые материалы!</a>
+    <hr />
+</div>
