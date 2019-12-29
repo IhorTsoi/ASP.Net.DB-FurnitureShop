@@ -6,6 +6,7 @@ using FurnitureShop.Documents;
 using FurnitureShop.Models;
 using FurnitureShop.Repositories;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -21,12 +22,18 @@ namespace FurnitureShop.Pages
         //
         public OrderHeader CurrentOrderHeader { get; set; }
         public IEnumerable<OrderHeader> PreviousOrderHeaders { get; set; }
+        private IWebHostEnvironment _env;
         private int userId
         {
             get { 
                 AppUserRepository userRepository = new AppUserRepository();
                 return userRepository.GetIdByEmail(User.Identity.Name);
             } 
+        }
+
+        public ShoppingCartModel(IWebHostEnvironment env)
+        {
+            _env = env;
         }
 
         public void OnGet()
@@ -62,7 +69,7 @@ namespace FurnitureShop.Pages
                 Receipt receipt = new Receipt(orderRepository.Items.Find(
                     oh => oh.Date == (orderRepository.Items
                                 .Where(oh => oh.Date!=null)
-                                .Max(oh => (DateTime)oh.Date))));
+                                .Max(oh => (DateTime)oh.Date))), _env.WebRootPath);
                 return File(receipt.GetDocument(), "application/pdf");
             }
             else

@@ -1,6 +1,8 @@
 ﻿using FurnitureShop.Documents.WebApplication1.Documents;
 using FurnitureShop.Models;
+using Microsoft.AspNetCore.Hosting;
 using MigraDoc.DocumentObjectModel;
+using MigraDoc.DocumentObjectModel.Shapes;
 using MigraDoc.DocumentObjectModel.Tables;
 using MigraDoc.Rendering;
 using System;
@@ -13,18 +15,15 @@ namespace FurnitureShop.Documents
 {
     public class Receipt
     {
-        //
-        //    We create a pdf document using this class.
-        //    All the data should be passed to document through the constructor.
-        //    Use GetDocument() method to get the document in a byte[].
-        //
-
         private Document _document = new Document();
-        private OrderHeader orderHeader;
+        private OrderHeader _orderHeader;
+        private string _path;
 
-        public Receipt(OrderHeader orderHeader)
+        public Receipt(OrderHeader orderHeader, string path)
         {
-            this.orderHeader = orderHeader;
+            _orderHeader = orderHeader;
+            _path = path;
+            //
             InitializeStyle();
             Fill();
         }
@@ -33,12 +32,10 @@ namespace FurnitureShop.Documents
         {
             PdfDocumentRenderer renderer = new PdfDocumentRenderer(unicode: true);
             renderer.Document = _document;
-
             renderer.RenderDocument();
-
+            //
             MemoryStream stream = new MemoryStream();
             renderer.Save(stream, true);
-
             return stream.ToArray();
         }
 
@@ -52,99 +49,78 @@ namespace FurnitureShop.Documents
         private void Fill()
         {
             Section section = _document.AddSection();
+            Image img = section.AddImage(_path + "/img/logo/logo.png");
+            img.Height = "4cm";
+
             Paragraph paragraph = section.AddParagraph();
+            paragraph.AddLineBreaks(count: 2);
 
-            paragraph.AddTextLines(
-                $"Дата: {DateTime.Now.ToString("d")}",
-                $"Покупатель: {orderHeader.AppUser.Name}");
+            Table table = CreateTableWithHeading("Приобретенные товары:");
+            Row row = table.AddRow();
+            row.Height = 25;
+            row.Borders.Bottom = new Border() { Width = "1pt", Color = Colors.DarkGray };
+            row.Cells[0].AddParagraph("Артикул:");
+            row.Cells[1].AddParagraph("Название:");
+            row.Cells[2].AddParagraph("Количество:");
+            row.Cells[3].AddParagraph("Цена:");
 
-            paragraph.AddLineBreaks(count: 4);
+            foreach (var od in _orderHeader.OrderDetails)
+            {
+                row = table.AddRow();
+                row.Height = 20;
+                row.Cells[0].AddParagraph(od.VendorCode);
+                row.Cells[1].AddParagraph(od.Furniture.Name);
+                row.Cells[2].AddParagraph($"{od.Quantity} шт.");
+                row.Cells[3].AddParagraph($"{(int)od.Furniture.Price} грн");
+            }
+            row = table.AddRow();
+            row.Borders.Top = new Border() { Width = "1pt", Color = Colors.DarkGray };
+            //
+            row = table.AddRow();
+            row.Borders.Bottom = new Border() { Width = "1pt", Color = Colors.DarkGray };
+            paragraph = row.Cells[3].AddParagraph();
+            FormattedText text = paragraph.AddFormattedText("Итог:", TextFormat.Bold);
+            text.Color = Colors.Black;
+            row.Height = 25;
+            //
+            row = table.AddRow();
+            row.Cells[3].AddParagraph($"{_orderHeader.OrderDetails.Aggregate(0, (seed, od) => { return seed + od.Quantity * (int)od.Furniture.Price;}).ToString()} грн");
 
             paragraph = section.AddParagraph();
-            paragraph.AddTextLines(
-                "Приобретенные товары:");
-
-            foreach (var od in orderHeader.OrderDetails)
-            {
-                paragraph.AddTextLines(od.VendorCode, od.Furniture.Name, $"В количестве: {od.Quantity} шт.", $"По цене: {od.Furniture.Price}");
-            }
-
             paragraph.AddLineBreaks(count: 4);
+            paragraph.Format.Font.Color = MigraDoc.DocumentObjectModel.Color.FromCmyk(100, 30, 20, 50);
+            paragraph.AddTextLines(
+                $"Дата: {DateTime.Now.ToString("d")}",
+                $"Покупатель: {_orderHeader.AppUser.Name}");
+            paragraph.Format.Alignment = ParagraphAlignment.Right;
 
-            paragraph.AddTextLines("Приходите ещё, FurnitureShop!");
+            paragraph = section.AddParagraph();
+            paragraph.AddLineBreaks(count: 2);
+            paragraph.Format.Alignment = ParagraphAlignment.Center;
+            paragraph.AddTextLines("Будем рады Вас видеть, FurnitureShop!");
         }
 
-        //private void CreateCarUserData()
-        //{
-        //    Table table = CreateTableWithHeading("Car info:");
-
-        //    Row row = table.AddRow();
-        //    row.Cells[0].AddParagraph("Name:");
-        //    row.Cells[1].AddParagraph(_car.Name);
-
-        //    row = table.AddRow();
-        //    row.Cells[0].AddParagraph("Origin:");
-        //    row.Cells[1].AddParagraph(_car.Origin);
-
-        //    row = table.AddRow();
-        //    row.Cells[0].AddParagraph("Years:");
-        //    row.Cells[1].AddParagraph(_car.Years.ToString());
-
-        //    row = table.AddRow();
-        //    row.Cells[0].AddParagraph("Technical state:");
-        //    row.Cells[1].AddParagraph(_car.TechState.ToString());
-
-        //    row = table.AddRow();
-        //    row.Cells[0].AddParagraph("Horse power:");
-        //    row.Cells[1].AddParagraph(_car.HorsePower.ToString());
-
-        //    row = table.AddRow();
-        //    row.Cells[0].AddParagraph("Weight:");
-        //    row.Cells[1].AddParagraph(_car.Weight.ToString());
-
-        //    row = table.AddRow();
-        //    Paragraph paragraph = row.Cells[0].AddParagraph();
-        //    FormattedText text = paragraph.AddFormattedText("Price:");
-        //    text.Color = Colors.DarkBlue;
-        //    row.Cells[1].AddParagraph(_car.Weight.ToString() + "$");
-
-        //    table = CreateTableWithHeading("My personal info:");
-
-        //    row = table.AddRow();
-        //    row.Cells[0].AddParagraph("Name:");
-        //    row.Cells[1].AddParagraph(_user.Name);
-
-        //    row = table.AddRow();
-        //    row.Cells[0].AddParagraph("Surname:");
-        //    row.Cells[1].AddParagraph(_user.Surname);
-
-        //    row = table.AddRow();
-        //    row.Cells[0].AddParagraph("Adress:");
-        //    row.Cells[1].AddParagraph(_user.Adress);
-
-        //    row = table.AddRow();
-        //    row.Cells[0].AddParagraph("Phone number:");
-        //    row.Cells[1].AddParagraph(_user.PhoneNumber);
-        //}
-
-        //private Table CreateTableWithHeading(string heading)
-        //{
-        //    Section section = _document.LastSection;
-
-        //    section.AddParagraph().AddLineBreaks(count: 2);
-
-        //    Paragraph paragraph = section.AddParagraph();
-        //    FormattedText text = paragraph.AddFormattedText(heading, "Heading");
-        //    text.Color = Colors.Black;
-        //    paragraph.AddLineBreaks(count: 2);
-
-        //    Table table = section.AddTable();
-        //    Column col = table.AddColumn(); // left column for names
-        //    col.Width = 150;
-        //    col = table.AddColumn();        // right column for values
-        //    col.Width = 500;
-
-        //    return table;
-        //}
+        private Table CreateTableWithHeading(string heading)
+        {
+            Section section = _document.LastSection;
+            section.AddParagraph().AddLineBreaks(count: 2);
+            //
+            Paragraph paragraph = section.AddParagraph();
+            FormattedText text = paragraph.AddFormattedText(heading, "Heading");
+            text.Color = Colors.Black;
+            paragraph.AddLineBreaks(count: 2);
+            //
+            Table table = section.AddTable();
+            Column col = table.AddColumn(); // 1 column
+            col.Width = 80;
+            col = table.AddColumn();        // 2 column
+            col.Width = 200;
+            col = table.AddColumn();        // 3 column
+            col.Width = 100;
+            col = table.AddColumn();        // 4 column
+            col.Width = 100;
+            //
+            return table;
+        }
     }
 }
