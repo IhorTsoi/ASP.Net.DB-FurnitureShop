@@ -28,17 +28,8 @@ namespace FurnitureShop.Pages.Admin
             categoryRepository.Initialize();
             manufacturerRepository = new ManufacturerRepository();
             manufacturerRepository.Initialize();
-        }
-
-        public IEnumerable<AppUserTotal> AppUserTotalStats { get; set; }
-        public (int min, int avg, int max) ReceiptStats { get; set; }
-        public Dictionary<string, Dictionary<string, List<decimal>>> categoryManufacturerAverage { get; set; }
-        public Dictionary<string, int> furnitureBought { get; set; } = new Dictionary<string, int>();
-        public Dictionary<DateTime, int> ordersByDate { get; set; } = new Dictionary<DateTime, int>();
-
-
-        public void OnGet()
-        {
+            //
+            //
             AppUserTotalStats = orderRepository.Items.GroupBy(oh => new { ID = oh.AppUserID, Name = oh.AppUser.Name })
                 .Select(g => new AppUserTotal(g.Key.ID, g.Key.Name, g.Sum(oh => oh.GetSum())))
                 .OrderByDescending(ut => ut.Total);
@@ -95,7 +86,22 @@ namespace FurnitureShop.Pages.Admin
                     furnitureBought[od.VendorCode] = bought;
                 });
             }
-            //
+        }
+
+        public IEnumerable<AppUserTotal> AppUserTotalStats { get; set; }
+        public (int min, int avg, int max) ReceiptStats { get; set; }
+        public Dictionary<string, Dictionary<string, List<decimal>>> categoryManufacturerAverage { get; set; }
+        public Dictionary<string, int> furnitureBought { get; set; } = new Dictionary<string, int>();
+        public Dictionary<DateTime, int> ordersByDate { get; set; } = new Dictionary<DateTime, int>();
+
+
+        public IActionResult OnPostPrint()
+        {
+            IEnumerable<Models.Furniture> furnitures = furnitureBought.OrderByDescending(pair => pair.Value)
+                .Take(20).Select(p =>
+                    furnitureRepository.Find(f => f.VendorCode == p.Key));
+            Documents.Statistics stats = new Documents.Statistics(furnitures);
+            return File(stats.GetDocument(), "application/pdf");
         }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using FurnitureShop.Documents.WebApplication1.Documents;
+using FurnitureShop.Models;
 using MigraDoc.DocumentObjectModel;
+using MigraDoc.DocumentObjectModel.Shapes.Charts;
 using MigraDoc.DocumentObjectModel.Tables;
 using MigraDoc.Rendering;
 using System;
@@ -13,9 +15,11 @@ namespace FurnitureShop.Documents
     public class Statistics
     {
         private Document _document = new Document();
+        private IEnumerable<Furniture> furnitures;
 
-        public Statistics()
+        public Statistics(IEnumerable<Furniture> furnitures)
         {
+            this.furnitures = furnitures;
             InitializeStyle();
             Fill();
         }
@@ -41,30 +45,41 @@ namespace FurnitureShop.Documents
         private void Fill()
         {
             Section section = _document.AddSection();
-            
-        }
+            Paragraph par = _document.LastSection.AddParagraph("Цены самых продаваемых товаров", "Header");
+            par.Format.Alignment = ParagraphAlignment.Center;
+            section.AddParagraph().AddLineBreaks(3);
+            //
+            Chart chart = new Chart();
+            chart.Left = 0;
+            //
+            chart.Width = Unit.FromCentimeter(16);
+            chart.Height = Unit.FromCentimeter(12);
+            Series series = chart.SeriesCollection.AddSeries();
+            series.ChartType = ChartType.Column2D;
+            series.Add(furnitures.Select(f => (double)f.Price).ToArray());
+            series.HasDataLabel = true;
 
-        private Table CreateTableWithHeading(string heading)
-        {
-            Section section = _document.LastSection;
-            section.AddParagraph().AddLineBreaks(count: 2);
+            XSeries xseries = chart.XValues.AddXSeries();
+            xseries.Add(Enumerable.Range(1, furnitures.Count()).Select(n => n.ToString()).ToArray());
+
+            chart.XAxis.MajorTickMark = TickMarkType.Outside;
             //
-            Paragraph paragraph = section.AddParagraph();
-            FormattedText text = paragraph.AddFormattedText(heading, "Heading");
-            text.Color = Colors.Black;
-            paragraph.AddLineBreaks(count: 2);
-            //
-            Table table = section.AddTable();
-            Column col = table.AddColumn(); // 1 column
-            col.Width = 80;
-            col = table.AddColumn();        // 2 column
-            col.Width = 200;
-            col = table.AddColumn();        // 3 column
-            col.Width = 100;
-            col = table.AddColumn();        // 4 column
-            col.Width = 100;
-            //
-            return table;
+            chart.YAxis.MajorTickMark = TickMarkType.Outside;
+            chart.YAxis.HasMajorGridlines = true;
+
+            chart.PlotArea.LineFormat.Color = Colors.DarkGray;
+            chart.PlotArea.LineFormat.Width = 1;
+
+            _document.LastSection.Add(chart);
+            par = _document.LastSection.AddParagraph();
+            par.AddLineBreaks(2);
+            par.AddTextLine("Легенда:");
+            int i = 1;
+            foreach (var f in furnitures)
+            {
+                par.AddTextLine(i.ToString() + " = " + "[" + f.VendorCode + "] " + f.Name);
+                i++;
+            }
         }
     }
 }
