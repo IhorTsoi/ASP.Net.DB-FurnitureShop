@@ -150,10 +150,9 @@ namespace FurnitureShop.Pages.Admin.Furniture
             return RedirectToPage("Update", new { vendor });
         }
 
-        // TODO: sizes
-
-        public IActionResult OnPostAddSize(string vendor, string type, int w, int h, int d)
+        public IActionResult OnPostAddSize(string vendor, int w, int h, int d, string type)
         {
+            type = type ?? "";
             furnitureRepository = new FurnitureRepository();
             try
             {
@@ -169,6 +168,7 @@ namespace FurnitureShop.Pages.Admin.Furniture
         }
         public IActionResult OnPostDeleteSize(string vendor, string type)
         {
+            type = type ?? "";
             furnitureRepository = new FurnitureRepository();
             try
             {

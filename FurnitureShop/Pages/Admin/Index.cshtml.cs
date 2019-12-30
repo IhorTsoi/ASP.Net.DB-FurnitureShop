@@ -12,6 +12,8 @@ namespace FurnitureShop.Pages.Admin
     {
         public void OnGet()
         {
+            //TODO: add colors and materials
+            //TODO: picture for manufacturer
         }
     }
 }

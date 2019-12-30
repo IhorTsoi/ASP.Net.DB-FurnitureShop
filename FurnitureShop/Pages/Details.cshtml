@@ -8,17 +8,58 @@
 
 <hr />
 
-@if (Model.Furniture != null)
+@if (Model.Furniture != null && Model.Furniture.Quantity > 0)
 {
-    <p>@Model.Furniture.ToString()</p>
-    <i style="color:green">// ... также тут будет рисунок и больше информации о продавце</i><br />
-    <i style="color:green">// ... пока не структурировано</i><br />
-    <i style="color:green">// >>> image adress: @Model.Furniture.Image</i><br />
-    <i style="color:green">// >>> rate: @Model.Furniture.Rate</i><br />
-    <br />
+    <div class="row">
+        <div class="col-md-4">
+            <img src="@Model.Furniture.Image" style="width: 100%;height: 200px;object-fit: cover;" class="img-thumbnail" />
+            <h3>@Model.Furniture.Name</h3>
+            <p style="font-variant-caps: all-small-caps;font-family: monospace;color: grey;">
+                Артикул: @Model.Furniture.VendorCode
+            </p>
+            @if (Model.Furniture.IsOnSale)
+            {
+                <b style="color: #5fb000;">Цена со скидкой: </b><span> @Model.Furniture.Price грн</span>
+            }
+            else
+            {
+                <b>Цена: </b><span> @Model.Furniture.Price грн</span>
+            }
+        <div>
+            <span style="display: inline-block">Цвета: </span>
+            @foreach (var color in Model.Furniture.Colors)
+            {
+                <div style="width:20px; height:20px;background-color: rgb(@color.RGB); display: inline-block;margin-top: 10px;" title="@color.Name"></div>
+            }
+        </div>
+        </div>
+        <div class="col-md-8">
+            <h6>Производитель:</h6> <span>@Model.Furniture.Manufacturer.Name</span>
+            <hr />
+            <h6>Коллекция: </h6><span>@Model.Furniture.Collection.Name</span>
+            <hr />
+            <h6>Размеры:</h6>
+            @foreach (var s in Model.Furniture.Sizes)
+            {
+                if (s.Type != "")
+                {
+                    <p>@s.Type :</p>
+                }
+                <p>Ширина: @s.Width см, высота: @s.Height см, глубина: @s.Depth см</p>
+                <hr />
+            }
+            <h6>Материалы:</h6>
+            <hr />
+            <p>
+                @string.Join(",", Model.Furniture.Materials.Select(m=>m.Name))
+            </p>
+        </div>
+    </div>
+
+    <hr />
     <form method="post" asp-page="Details" style="text-align: center;">
         <input type="hidden" name="vendorCode" value="@Model.Furniture.VendorCode" />
-        <input type="submit" class="btn btn-outline-primary" value="Добавить в корзину" />
+        <input type="submit" class="btn btn-success" style="width: 50%;" value="Добавить в корзину" />
     </form>
     <div style="margin-top : 25px; text-align: center;">
         <a asp-page="/Index" class="btn-link">На главную</a>
