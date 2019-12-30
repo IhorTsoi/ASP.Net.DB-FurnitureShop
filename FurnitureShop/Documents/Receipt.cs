@@ -84,7 +84,7 @@ namespace FurnitureShop.Documents
             row.Height = 25;
             //
             row = table.AddRow();
-            row.Cells[3].AddParagraph($"{_orderHeader.OrderDetails.Aggregate(0, (seed, od) => { return seed + od.Quantity * (int)od.Furniture.Price;}).ToString()} грн");
+            row.Cells[3].AddParagraph($"{_orderHeader.GetSum()} грн");
 
             paragraph = section.AddParagraph();
             paragraph.AddLineBreaks(count: 4);

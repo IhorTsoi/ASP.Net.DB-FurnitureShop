@@ -4,30 +4,113 @@
     ViewData["Title"] = "ADMIN Statistics";
 }
 
-<h1>Statistics</h1>
+<h1>Статистика</h1>
 <hr />
 <div class="row">
-    <div class="col-md-4">
-        <h5>Самые продаваемые товары:</h5>
-        @{ 
-            Dictionary<Models.Furniture, int> counter = new Dictionary<Models.Furniture, int>();
-            Model.orderRepository.Items
-                .Where(oh => oh.Date != null)
-                .ToList()
-                .ForEach(oh => oh.OrderDetails.ForEach(od => 
-                { 
-                    if (counter.ContainsKey(od.Furniture))
-                    { 
-                        counter[od.Furniture] += od.Quantity;
-                    }
-                    else
-                    {
-                        counter[od.Furniture] = od.Quantity;
-                    }
-                }));
-            //TODO: stats.
-        }
+    <div class="col-md-6" style="padding: 1em;background-color: aliceblue;border:solid 5px white;">
+        <h5>Самые состоятельные покупатели:</h5>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Имя</th>
+                    <th scope="col">Сумма всех заказов</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var userTotal in Model.AppUserTotalStats.Take(5))
+                {
+                    <tr>
+                        <td>@userTotal.ID</td>
+                        <td>@userTotal.Name</td>
+                        <td>@((int)userTotal.Total) грн</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     </div>
-    <div class="col-md-4"></div>
-    <div class="col-md-4"></div>
+    <div class="col-md-6" style="padding: 1em;background-color: aliceblue;border:solid 5px white;">
+        <h5>Сумма заказа:</h5>
+        <table class="table">
+            <tbody>
+                <tr>
+                    <td scope="col">Минимальная сумма заказа: @Model.ReceiptStats.min грн</td>
+                </tr>
+                <tr>
+                    <td scope="col">Средняя сумма заказа: @Model.ReceiptStats.avg грн</td>
+                </tr>
+                <tr>
+                    <td scope="col">Максимальная сумма заказа: @Model.ReceiptStats.max грн</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <hr />
+    <div class="col-md-6" style="padding: 1em;background-color: aliceblue;border:solid 5px white;">
+        <h5>Самые продаваемые товары:</h5>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Артикул</th>
+                    <th scope="col">Название</th>
+                    <th scope="col">Продано штук</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var pair in Model.furnitureBought.OrderByDescending(pair => pair.Value).Take(5))
+                {
+                    <tr>
+                        <td>@pair.Key</td>
+                        <td>@(Model.furnitureRepository.Find(f => f.VendorCode == pair.Key).Name)</td>
+                        <td>@pair.Value</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-6" style="padding: 1em;background-color: aliceblue;border:solid 5px white;">
+        <h5>Количество заказов по датам:</h5>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Дата</th>
+                    <th scope="col">Количество заказов</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var pair in Model.ordersByDate.OrderByDescending(pair => pair.Value).Take(5))
+                {
+                    <tr>
+                        <td>@pair.Key.ToString("dd/M/yyyy")</td>
+                        <td>@pair.Value</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-12" style="padding: 1em;background-color: aliceblue;border:solid 5px white;">
+        <h5>Средние цены:</h5>
+        <table class="table">
+            <tr>
+                <td></td>
+                @foreach (var item in Model.categoryRepository.Items)
+                {
+                    <th>@item.Name</th>
+                }
+            </tr>
+
+            @foreach (var man in Model.manufacturerRepository.Items)
+            {
+                <tr>
+                    <th>@man.Name</th>
+                    @foreach (var cat in Model.categoryRepository.Items)
+                    {
+                        <td>
+                            @((int?)Model.categoryManufacturerAverage.GetValueOrDefault(cat.Name)?.GetValueOrDefault(man.Name)?.Average() ?? 0) грн
+                        </td>
+                    }
+                </tr>
+            }
+        </table>
+    </div>
 </div>

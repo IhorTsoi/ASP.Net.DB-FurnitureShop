@@ -42,5 +42,8 @@ namespace FurnitureShop.Models
             }
             return res.ToString();
         }
+
+        public decimal GetSum() => 
+            OrderDetails.Aggregate((decimal)0, (seed, od) => seed + od.Quantity * od.Furniture.Price);
     }
 }
