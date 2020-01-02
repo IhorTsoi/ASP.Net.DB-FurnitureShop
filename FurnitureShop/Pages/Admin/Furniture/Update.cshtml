@@ -187,7 +187,9 @@
                 <tr>
                     <th scope="row">@material.ID</th>
                     <td>@material.Name</td>
-                    <td><div style="width:50px;height:50px; background-color:grey;"></div></td>
+                    <td>
+                        <img src="@material.Image" style="width: 50px;object-fit: cover;border-radius: .25rem;background-color: white;" />
+                    </td>
                     <td>
                         <form method="post" asp-page="Update">
                             <input type="hidden" name="vendor" value="@Model.Furniture.VendorCode" />

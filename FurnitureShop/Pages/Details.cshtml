@@ -25,13 +25,6 @@
             {
                 <b>Цена: </b><span> @Model.Furniture.Price грн</span>
             }
-        <div>
-            <span style="display: inline-block">Цвета: </span>
-            @foreach (var color in Model.Furniture.Colors)
-            {
-                <div style="width:20px; height:20px;background-color: @color.RGB; display: inline-block;margin-top: 10px;" title="@color.Name"></div>
-            }
-        </div>
         </div>
         <div class="col-md-8">
             <h6>Производитель:</h6> <span>@Model.Furniture.Manufacturer.Name</span>
@@ -48,11 +41,21 @@
                 <p>Ширина: @s.Width см, высота: @s.Height см, глубина: @s.Depth см</p>
                 <hr />
             }
-            <h6>Материалы:</h6>
+            <div>
+                <h6>Цвета: </h6>
+                @foreach (var color in Model.Furniture.Colors)
+                {
+                    <div style="width:50px; height:50px;background-color: @color.RGB; display: inline-block;margin-top: 10px;" title="@color.Name"></div>
+                }
+            </div>
             <hr />
-            <p>
-                @string.Join(",", Model.Furniture.Materials.Select(m=>m.Name))
-            </p>
+            <div>
+                <h6>Материалы: </h6>
+                @foreach (var material in Model.Furniture.Materials)
+                {
+                    <img src="@material.Image" style="width: 50px;object-fit: cover;border-radius: .25rem;background-color: white;" title="@material.Name" />
+                }
+            </div>
         </div>
     </div>
 

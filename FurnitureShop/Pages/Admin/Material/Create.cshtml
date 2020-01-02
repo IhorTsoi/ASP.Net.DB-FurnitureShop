@@ -1,0 +1,28 @@
+﻿@page
+@model FurnitureShop.Pages.Admin.Material.CreateModel
+@{
+    ViewData["Title"] = "ADMIN";
+}
+
+<h1>Создать материал</h1>
+<hr />
+
+@{
+    if (Model.Message != null)
+    {
+        <p style="color:@(Model.IsWarningMessage ? "red" : "green");"> @Model.Message </p>
+        <hr />
+    }
+}
+
+<form method="post" asp-page="Create" asp-page-handler="Create" enctype="multipart/form-data">
+    Название: <input type="text" class="form-control" name="name" /><br />
+    Изображение: <br /><input type="file" name="image" /><br /><br />
+    <span style="color: grey;font-size: small;">
+        Пожалуйста, обрежьте картинку до размеров 50px/50px. Рекомендуем воспользоваться сервисом: 
+        <a href="https://photo-resizer.ru/" style="color: #0366d6;">
+            photo-resizer
+        </a>
+    </span><br /><br />
+    <input type="submit" value="Создать" class="btn btn-primary" />
+</form>

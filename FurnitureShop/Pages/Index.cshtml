@@ -78,7 +78,7 @@
             <a asp-page="Furniture" asp-page-handler="Manufacturer" asp-route-manufacturerId="@manufacturer.ID">
                 <h2>@manufacturer.Name</h2>
             </a>
-            <p>@manufacturer.Description.Substring(0, 70)  ...</p>
+            <p>@(string.Join(string.Empty, manufacturer.Description.Take(70)))  ...</p>
         </div>
     }
 </div>

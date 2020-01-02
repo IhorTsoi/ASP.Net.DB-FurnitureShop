@@ -31,7 +31,7 @@ namespace FurnitureShop.Models
 
         public static string GetFileName(Furniture f, string filename)
         {
-            return "/img/" + f.VendorCode + "." + filename.Split('.').Last();
+            return "/img/f/" + f.VendorCode + "." + filename.Split('.').Last();
         }
 
         public Furniture(string vendorCode, string name, decimal price, int quantity, int categoryID, int manufacturerID, int collectionID, string image)

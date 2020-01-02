@@ -20,6 +20,11 @@ namespace FurnitureShop.Models
             }
         }
 
+        public static string GetFileName(Manufacturer m, string filename)
+        {
+            return "/img/man/" + m.Name + "." + filename.Split('.').Last();
+        }
+
         private bool IsValid()
         {
             return Name != null && Name != "";

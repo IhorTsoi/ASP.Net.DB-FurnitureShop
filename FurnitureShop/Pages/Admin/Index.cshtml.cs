@@ -11,9 +11,6 @@ namespace FurnitureShop.Pages.Admin
     public class IndexModel : PageModel
     {
         public void OnGet()
-        {
-            //TODO: add colors and materials
-            //TODO: picture for manufacturer
-        }
+        {}
     }
 }

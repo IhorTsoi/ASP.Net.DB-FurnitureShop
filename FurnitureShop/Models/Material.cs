@@ -24,6 +24,11 @@ namespace FurnitureShop.Models
             return Name != null && Name != "";
         }
 
+        public static string GetFileName(Material m, string filename)
+        {
+            return "/img/mat/" + m.Name + "." + filename.Split('.').Last();
+        }
+
         public int ID { get; set; }
         public string Name { get; set; }
         public string Image { get; set; }
