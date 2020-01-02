@@ -14,11 +14,6 @@ namespace FurnitureShop.Pages.Admin.Manufacturer
         public string Message { get; set; }
         [TempData]
         public bool IsWarningMessage { get; set; }
-        public void OnGet()
-        {
-            Message = TempData["Message"] as string;
-            IsWarningMessage = (TempData["IsWarningMessage"] as bool?) ?? false;
-        }
 
         public IActionResult OnPostCreate(string name, string description, string contacts, string image)
         {

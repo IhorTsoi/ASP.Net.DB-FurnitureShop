@@ -17,8 +17,6 @@ namespace FurnitureShop.Pages.Admin.Manufacturer
         public bool IsWarningMessage { get; set; }
         public void OnGet()
         {
-            Message = TempData["Message"] as string;
-            IsWarningMessage = (TempData["IsWarningMessage"] as bool?) ?? false;
             ManufacturerRepository manufacturerRepository = new ManufacturerRepository();
             manufacturerRepository.Initialize();
             Manufacturers = manufacturerRepository.Items.OrderBy(i => i.ID).ToList();

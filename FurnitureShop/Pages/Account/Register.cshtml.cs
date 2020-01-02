@@ -19,13 +19,6 @@ namespace FurnitureShop.Pages.Account
         [TempData]
         public bool IsWarningMessage { get; set; }
 
-        public void OnGet()
-        {
-            // read the message from cookies
-            Message = TempData["Message"] as string;
-            IsWarningMessage = (TempData["IsWarningMessage"] as bool?) ?? false;
-        }
-
         [BindProperty]
         public RegisterViewModel RegisterForm { get; set; }
         public IActionResult OnPostRegister()

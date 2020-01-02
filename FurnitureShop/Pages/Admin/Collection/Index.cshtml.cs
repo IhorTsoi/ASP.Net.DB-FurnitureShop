@@ -17,8 +17,6 @@ namespace FurnitureShop.Pages.Admin.Collection
         public bool IsWarningMessage { get; set; }
         public void OnGet()
         {
-            Message = TempData["Message"] as string;
-            IsWarningMessage = (TempData["IsWarningMessage"] as bool?) ?? false;
             CollectionRepository collectionRepository = new CollectionRepository();
             collectionRepository.Initialize();
             Collections= collectionRepository.Items.OrderBy(i => i.ID).ToList();

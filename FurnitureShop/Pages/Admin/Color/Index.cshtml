@@ -1,0 +1,47 @@
+﻿@page
+@model FurnitureShop.Pages.Admin.Color.IndexModel
+@{
+    ViewData["Title"] = "ADMIN";
+}
+
+<h1>Цвета</h1>
+<hr />
+
+@{
+    if (Model.Message != null)
+    {
+        <p style="color:@(Model.IsWarningMessage ? "red" : "green");"> @Model.Message </p>
+        <hr />
+    }
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Название</th>
+            <th scope="col">Кодировка</th>
+            <th scope="col">Отображение</th>
+            <th>Удалить</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Colors)
+        {
+            <tr>
+                <th scope="row">@item.ID</th>
+                <td>@item.Name</td>
+                <td>@item.RGB</td>
+                <td><div style="width:50px;height:50px; background-color: @item.RGB;"></div></td>
+                <td>
+                    <form method="post" asp-page="Index" asp-page-handler="Delete">
+                        <input type="hidden" name="id" value="@(item.ID)" />
+                        <input type="submit" value="Удалить" class="btn btn-danger" />
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-page="Create" class="btn btn-outline-primary" style="width:100%;">Создать</a>

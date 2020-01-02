@@ -1,0 +1,22 @@
+﻿@page
+@model FurnitureShop.Pages.Admin.Color.CreateModel
+@{
+    ViewData["Title"] = "ADMIN";
+}
+
+<h1>Создать цвет</h1>
+<hr />
+
+@{
+    if (Model.Message != null)
+    {
+        <p style="color:@(Model.IsWarningMessage ? "red" : "green");"> @Model.Message </p>
+        <hr />
+    }
+}
+
+<form method="post" asp-page="Create" asp-page-handler="Create">
+    Название: <input type="text" class="form-control" name="name" /><br />
+    Цвет: <input type="color" class="form-control" name="rgb"/><br />
+    <input type="submit" value="Создать" class="btn btn-primary" />
+</form>

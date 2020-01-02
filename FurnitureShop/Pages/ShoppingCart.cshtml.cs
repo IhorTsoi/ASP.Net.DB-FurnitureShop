@@ -38,9 +38,6 @@ namespace FurnitureShop.Pages
 
         public void OnGet()
         {
-            // read the message from cookies
-            Message = TempData["Message"] as string;
-            IsWarningMessage = (TempData["IsWarningMessage"] as bool?) ?? false;
             // get orders from db
             OrderRepository orderRepository = new OrderRepository(userId);
             orderRepository.Initialize();

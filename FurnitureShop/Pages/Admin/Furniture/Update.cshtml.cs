@@ -25,8 +25,6 @@ namespace FurnitureShop.Pages.Admin.Furniture
 
         public void OnGet(string vendor)
         {
-            Message = TempData["Message"] as string;
-            IsWarningMessage = (TempData["IsWarningMessage"] as bool?) ?? false;
             furnitureRepository = new FurnitureRepository(QueryMode.ByVendorCode, vendor);
             furnitureRepository.Initialize();
             Furniture = furnitureRepository.Items.FirstOrDefault();
@@ -104,7 +102,7 @@ namespace FurnitureShop.Pages.Admin.Furniture
                 Message = "The try to add color was incorrect.";
                 IsWarningMessage = true;
             }
-            return RedirectToPage("Update", new { vendor });
+            return RedirectToPage("Update", "", routeValues: new { vendor }, fragment: "color_form");
         }
         public IActionResult OnPostDeleteColor(string vendor, int colorId)
         {
@@ -118,7 +116,7 @@ namespace FurnitureShop.Pages.Admin.Furniture
                 Message = "The try to delete color was incorrect.";
                 IsWarningMessage = true;
             }
-            return RedirectToPage("Update", new { vendor });
+            return RedirectToPage("Update", "", routeValues: new { vendor }, fragment: "color_form");
         }
 
         public IActionResult OnPostAddMaterial(string vendor, int materialId)
@@ -133,7 +131,7 @@ namespace FurnitureShop.Pages.Admin.Furniture
                 Message = "The try to add material was incorrect.";
                 IsWarningMessage = true;
             }
-            return RedirectToPage("Update", new { vendor });
+            return RedirectToPage("Update", "", routeValues: new { vendor }, fragment: "material_form");
         }
         public IActionResult OnPostDeleteMaterial(string vendor, int materialId)
         {
@@ -147,7 +145,7 @@ namespace FurnitureShop.Pages.Admin.Furniture
                 Message = "The try to delete material was incorrect.";
                 IsWarningMessage = true;
             }
-            return RedirectToPage("Update", new { vendor });
+            return RedirectToPage("Update", "", routeValues: new { vendor }, fragment: "material_form");
         }
 
         public IActionResult OnPostAddSize(string vendor, int w, int h, int d, string type)

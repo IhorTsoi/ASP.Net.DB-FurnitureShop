@@ -17,8 +17,6 @@ namespace FurnitureShop.Pages.Admin.Category
         public bool IsWarningMessage { get; set; }
         public void OnGet()
         {
-            Message = TempData["Message"] as string;
-            IsWarningMessage = (TempData["IsWarningMessage"] as bool?) ?? false;
             CategoryRepository categoryRepository = new CategoryRepository();
             categoryRepository.Initialize();
             Categories = categoryRepository.Items.OrderBy(i => i.ID).ToList();
