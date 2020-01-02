@@ -97,7 +97,7 @@
             <a asp-page="Furniture" asp-page-handler="Collection" asp-route-collectionId="@collection.ID">
                 <h2>@collection.Name</h2>
             </a>
-            <p>@collection.Description.Substring(0, 70)  ...</p>
+            <p>@(string.Join(string.Empty, collection.Description.Take(70)))  ...</p>
         </div>
     }
 </div>

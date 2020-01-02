@@ -28,7 +28,7 @@ namespace FurnitureShop.Repositories
                     {
                         int ID = reader.GetInt32(0);
                         string name = reader.GetString(1);
-                        string description = reader.GetString(2);
+                        string description = reader.IsDBNull(2) ? string.Empty : reader.GetString(2);
                         //
                         Items.Add(new Collection(ID, name, description));
                     }
@@ -42,7 +42,7 @@ namespace FurnitureShop.Repositories
                 cmdText: "INSERT INTO Collection VALUES (@name, @desc);"
             );
             command.Parameters.Add(new SqlParameter("@name", collection.Name));
-            command.Parameters.Add(new SqlParameter("@desc", collection.Description));
+            command.Parameters.Add(new SqlParameter("@desc", collection.Description ?? (object)DBNull.Value));
             Execute(command);
         }
 

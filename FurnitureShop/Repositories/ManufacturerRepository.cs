@@ -28,9 +28,9 @@ namespace FurnitureShop.Repositories
                     {
                         int ID = reader.GetInt32(0);
                         string name = reader.GetString(1);
-                        string description = reader.GetString(2);
-                        string contacts = reader.IsDBNull(3) ? "-" : reader.GetString(3);
-                        string image = reader.IsDBNull(4) ? "-" : reader.GetString(4);
+                        string description = reader.IsDBNull(2) ? string.Empty : reader.GetString(2);
+                        string contacts = reader.IsDBNull(3) ? string.Empty : reader.GetString(3);
+                        string image = reader.IsDBNull(4) ? string.Empty : reader.GetString(4);
                         //
                         Items.Add(new Manufacturer(ID, name, description, contacts, image));
                     }
@@ -45,7 +45,7 @@ namespace FurnitureShop.Repositories
                          " VALUES (@name, @desc, @contacts, @image);"
             );
             command.Parameters.Add(new SqlParameter("@name", manufacturer.Name));
-            command.Parameters.Add(new SqlParameter("@desc", manufacturer.Description));
+            command.Parameters.Add(new SqlParameter("@desc", manufacturer.Description ?? (object)DBNull.Value));
             command.Parameters.Add(new SqlParameter("@contacts", manufacturer.Contacts ?? (object)DBNull.Value));
             command.Parameters.Add(new SqlParameter("@image", manufacturer.Image ?? (object)DBNull.Value));
             Execute(command);
